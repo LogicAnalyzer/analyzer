@@ -26,6 +26,7 @@ parameter SAMPLE_WIDTH = 8;
 
 module trigger_basic(
     input clock,    
+    input valid,
     input arm,                      
     input [SAMPLE_WIDTH-1:0] dataIn,
     input [SAMPLE_WIDTH-1:0] trigRising,
@@ -60,6 +61,7 @@ endmodule
 
 module single_trigger(
     input clock,
+    input valid,
     input trig_sel_rise,
     input trig_sel_fall,
     input sample,
@@ -67,38 +69,38 @@ module single_trigger(
     output reg q    
 );
 
-reg q_sample;
+    reg q_sample;
 
-always@(posedge clock)
-begin
-q_sample <= sample;
-end
-    
-always@(posedge clock or posedge arm) 
-begin
-if(arm) 
+    always@(posedge clock)
     begin
-        if(trig_sel_rise | trig_sel_fall)
-            q <= 0;
-        else
-            q <= 1;
+    q_sample <= sample;
     end
-    
-else if(trig_sel_rise)
+        
+    always@(posedge clock or posedge arm) 
     begin
-        if(sample & !q_sample)
-            q <= 1;
-        else
-            q <= 0;
+    if(arm) 
+        begin
+            if(trig_sel_rise | trig_sel_fall)
+                q <= 0;
+            else
+                q <= 1;
+        end
+        
+    else if(trig_sel_rise)
+        begin
+            if(valid & sample & !q_sample)
+                q <= 1;
+            else
+                q <= 0;
+        end
+    else if(trig_sel_fall)
+        begin
+            if(valid & !sample & !q_sample)
+                q <= 1;
+            else
+                q <= 0;
+        end
+    else 
+        q <= 1;
     end
-else if(trig_sel_fall)
-    begin
-        if(!sample & !q_sample)
-            q <= 1;
-        else
-            q <= 0;
-    end
-else 
-    q <= 1;
-end
 endmodule
