@@ -22,18 +22,18 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
-parameter SAMPLE_WIDTH = 8;
-
-module trigger_basic(
+module trigger_basic #(parameter SAMPLE_WIDTH = 8) (
     input clock,    
     input valid,
     input arm,                      
     input [SAMPLE_WIDTH-1:0] dataIn,
     input [SAMPLE_WIDTH-1:0] trigRising,
     input [SAMPLE_WIDTH-1:0] trigFalling,
-    output run    
+    output reg run    
     );
-    
+
+reg done;
+wire x;
 wire [SAMPLE_WIDTH-1:0] single_out;
 genvar i;
 generate
@@ -41,6 +41,7 @@ generate
         begin: generate_triggers
             single_trigger current_trigger(
                 .clock(clock),
+                .valid(valid),
                 .trig_sel_rise(trigRising[i]),
                 .trig_sel_fall(trigFalling[i]),
                 .sample(dataIn[i]),
@@ -50,7 +51,21 @@ generate
         end
     endgenerate
     
-    assign run = &single_out[SAMPLE_WIDTH-1:0];
+    always@(posedge arm)  begin
+        done <= 0;
+        run <=0;
+    end
+    
+    always@(posedge clock) begin
+        if (&single_out[SAMPLE_WIDTH-1:0]) begin
+            run <= 1;
+            done <= 1;
+        end
+        if (done) begin
+            run <= 0;
+        end
+    end
+    
     
 endmodule
 
@@ -82,6 +97,7 @@ module single_trigger(
         begin
             if(trig_sel_rise | trig_sel_fall)
                 q <= 0;
+                
             else
                 q <= 1;
         end

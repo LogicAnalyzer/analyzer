@@ -19,8 +19,28 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
-
-module sampler(
-
+module sampler #(parameter SAMPLE_WIDTH = 8)(
+    input clock,
+    input reset,                         
+    input [SAMPLE_WIDTH-1:0] dataIn,
+    input [23:0] divider,
+    output reg [SAMPLE_WIDTH-1:0] dataOut,
+    output reg validOut
     );
+    
+    reg [23:0] counter;
+    
+always@ (posedge reset) begin
+    counter <= divider;
+end
+always@(posedge clock) begin
+        if (counter == 0) begin
+            validOut <= 1'b1;
+            counter <= divider;
+        end else begin
+            validOut <= 1'b0;
+            counter <= counter - 1;
+        end
+       dataOut <= dataIn;
+       end
 endmodule
