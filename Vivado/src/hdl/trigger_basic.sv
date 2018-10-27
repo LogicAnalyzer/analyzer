@@ -88,7 +88,7 @@ module single_trigger(
 
     always@(posedge clock)
     begin
-    q_sample <= sample;
+    if (valid) q_sample <= sample;
     end
         
     always@(posedge clock or posedge arm) 
@@ -111,7 +111,7 @@ module single_trigger(
         end
     else if(trig_sel_fall)
         begin
-            if(valid & !sample & !q_sample)
+            if(valid & !sample & q_sample)
                 q <= 1;
             else
                 q <= 0;

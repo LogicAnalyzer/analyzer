@@ -53,7 +53,7 @@ begin
 endtask
 
 initial begin
-fall = 5'b00001; rise = 4'b000; div = 0; arm = 4; testdata = 0;
+fall = 5'b00000; rise = 4'b0000; div = 4; arm = 0; testdata = 0;
 tick(3);
 arm = 1;
 tick(1);
@@ -63,7 +63,12 @@ for (i = 0; i < 255; i = i + 1) begin
     testdata = i;
     tick(1);
 end
-
+fall = 8'b1111_1111; testdata = 0;
+arm = 1; tick(6); arm = 0; tick (6);
+testdata = 8'b1111_1111;
+tick(10);
+testdata = 8'b0;
+tick(20);
 
 end //end initial
 endmodule
