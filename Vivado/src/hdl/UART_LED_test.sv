@@ -39,39 +39,39 @@ clk_gen ledclock(
     .clk_sec(),
     .clk_5KHz(led_clk)
 );
-    bcd_to_7seg bcd7    (hold_input[39:36], digit7);
-    bcd_to_7seg bcd6    (hold_input[35:32], digit6);
-    bcd_to_7seg bcd5    (hold_input[24:20], digit5);
-    bcd_to_7seg bcd4    (hold_input[19:16], digit4);
-    bcd_to_7seg bcd3    (hold_input[15:12], digit3);
-    bcd_to_7seg bcd2    (hold_input[11:8], digit2);
-    bcd_to_7seg bcd1    (hold_input[7:4], digit1);
-    bcd_to_7seg bcd0    (hold_input[3:0], digit0);
-    led_mux led_mux (led_clk, reset, digit7, digit6, digit5, digit4, digit3, digit2, digit1, digit0, LEDSEL, LEDOUT);
+bcd_to_7seg bcd7    (hold_input[39:36], digit7);
+bcd_to_7seg bcd6    (hold_input[35:32], digit6);
+bcd_to_7seg bcd5    (hold_input[24:20], digit5);
+bcd_to_7seg bcd4    (hold_input[19:16], digit4);
+bcd_to_7seg bcd3    (hold_input[15:12], digit3);
+bcd_to_7seg bcd2    (hold_input[11:8], digit2);
+bcd_to_7seg bcd1    (hold_input[7:4], digit1);
+bcd_to_7seg bcd0    (hold_input[3:0], digit0);
+led_mux led_mux (led_clk, reset, digit7, digit6, digit5, digit4, digit3, digit2, digit1, digit0, LEDSEL, LEDOUT);
 
-   UART_com uart(
-     .input_clk(clock),
-     .reset(reset),
-     .trans_en(tran_uart),
-     .Rx(rx),
-     .Tx(tx),
-     .data_out(tran_data),
-     .data_rdy(data_rdy),
-     .data_received(recv_data)   
-    );
+UART_com uart(
+ .input_clk(clock),
+ .reset(reset),
+ .trans_en(tran_uart),
+ .Rx(rx),
+ .Tx(tx),
+ .data_out(tran_data),
+ .data_rdy(data_rdy),
+ .data_received(recv_data)   
+);
    
-   command_decoder cmd_decode(
-       .clock(clock),
-       .reset(reset),
-       .byte_in(recv_data),
-       .byte_in_ready(data_rdy),
-       .cmd_recieved(checkcode),
-       .opcode(opcode),
-       .command(command)
-   );
-   
-    always@(posedge checkcode) begin
-        hold_input <= {opcode, command};
-    end
+command_decoder cmd_decode(
+   .clock(clock),
+   .reset(reset),
+   .byte_in(recv_data),
+   .byte_in_ready(data_rdy),
+   .cmd_recieved(checkcode),
+   .opcode(opcode),
+   .command(command)
+);
+
+always@(posedge data_rdy) begin
+    hold_input <= {32'b0, recv_data};
+end
     
 endmodule

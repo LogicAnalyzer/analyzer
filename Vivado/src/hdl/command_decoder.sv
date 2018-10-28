@@ -45,7 +45,7 @@ always@(posedge clock or negedge reset) begin
         end
     end
     
-always@(CS, byte_in_ready) begin
+always@(*) begin
     case (CS)
         IDLE: begin             
             if(byte_in_ready) begin
