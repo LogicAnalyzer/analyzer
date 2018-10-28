@@ -22,16 +22,32 @@
 
 module UART_LED_test(
     input rx, clock, reset,
-    output reg tx,
-    output reg [3:0] LED, 
-    output reg [3:0] OPCODELED,
-    output reg LEDRX, LEDTX
+    output tx,
+    output [7:0] LEDSEL, LEDOUT
 );
 
-wire tran_uart, data_rdy, checkcode;
+wire tran_uart, data_rdy, checkcode, led_clk;
 wire [7:0] tran_data, recv_data;
 wire [7:0] opcode;
 wire [31:0] command;
+wire [7:0] digit0, digit1, digit2, digit3, digit4, digit5, digit6, digit7;
+reg [39:0] hold_input;
+
+clk_gen ledclock(
+    .clk100MHz(clock),
+    .rst(reset),
+    .clk_sec(),
+    .clk_5KHz(led_clk)
+);
+    bcd_to_7seg bcd7    (hold_input[39:36], digit7);
+    bcd_to_7seg bcd6    (hold_input[35:32], digit6);
+    bcd_to_7seg bcd5    (hold_input[24:20], digit5);
+    bcd_to_7seg bcd4    (hold_input[19:16], digit4);
+    bcd_to_7seg bcd3    (hold_input[15:12], digit3);
+    bcd_to_7seg bcd2    (hold_input[11:8], digit2);
+    bcd_to_7seg bcd1    (hold_input[7:4], digit1);
+    bcd_to_7seg bcd0    (hold_input[3:0], digit0);
+    led_mux led_mux (led_clk, reset, digit7, digit6, digit5, digit4, digit3, digit2, digit1, digit0, LEDSEL, LEDOUT);
 
    UART_com uart(
      .input_clk(clock),
@@ -54,27 +70,8 @@ wire [31:0] command;
        .command(command)
    );
    
-    always@(posedge clock) begin
-        if (reset) begin
-            LED[3] <= 0;
-            LEDRX <= 0;
-            LEDTX <= 0;
-        end
-        if (~tx) begin
-           LEDTX <= 1; 
-        end
-        if (~rx) begin
-           LEDRX <= 1; 
-        end
-        if (checkcode) begin
-            LED[3] <= 1;
-            if (opcode == 8'b0000_1000) begin
-                LED[2:0] <= command[2:0];
-            end else if (opcode == 8'b0000_0000) begin
-                LED[2:0] <= 3'b111;
-                end
-        end
-        OPCODELED <= cmd_decode.CS;
+    always@(posedge checkcode) begin
+        hold_input <= {opcode, command};
     end
     
 endmodule
