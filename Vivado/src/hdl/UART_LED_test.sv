@@ -68,9 +68,11 @@ wire [31:0] command;
         end
         if (checkcode) begin
             LED[3] <= 1;
-            if (opcode == 8'b0000_0000) begin
-                LED[2:0] <= ~command[2:0];
-            end
+            if (opcode == 8'b0000_1000) begin
+                LED[2:0] <= command[2:0];
+            end else if (opcode == 8'b0000_0000) begin
+                LED[2:0] <= 3'b111;
+                end
         end
         OPCODELED <= cmd_decode.CS;
     end

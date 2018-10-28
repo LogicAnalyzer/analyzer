@@ -27,14 +27,13 @@ module command_decoder(
     output reg [7:0] opcode,
     output reg [31:0] command
     );
-    
+        
     parameter IDLE = 3'b000;
     parameter BYTE0 = 3'b001;
     parameter BYTE1 = 3'b010;
     parameter BYTE2 = 3'b011;
     parameter BYTE3 = 3'b100;
-    parameter BYTE4 = 3'b101;
-    parameter RECIEVED = 3'b110;
+    parameter RECIEVED = 3'b101;
 
     reg [2:0] CS, NS;    
    
@@ -62,7 +61,7 @@ always@(CS, byte_in_ready) begin
                 command[31:24] <= byte_in;
                 NS <= BYTE1; 
              end else begin
-                NS <= IDLE;
+                NS <= BYTE0;
             end
         end
         BYTE1: begin
@@ -83,20 +82,12 @@ always@(CS, byte_in_ready) begin
         end
         BYTE3: begin
            if(byte_in_ready) begin
-              command[15:8] <= byte_in;
-              NS <= BYTE4; 
+              command[7:0] <= byte_in;
+              NS <= RECIEVED; 
          end else begin
               NS <= BYTE3;
          end     
         end
-        BYTE4: begin 
-            if(byte_in_ready) begin
-                command[7:0] <= byte_in;
-                NS <= RECIEVED; 
-            end else begin
-                NS <= BYTE4;
-                end   
-            end
         RECIEVED: begin
             cmd_recieved <= 1'b1;
             NS <= IDLE;
