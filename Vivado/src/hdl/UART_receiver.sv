@@ -33,9 +33,6 @@ module UART_receiver #(parameter INPUT_CLK_KHZ = 100_000, BAUD_RATE =9600)(
     localparam real BAUD_RATE_KHZ = BAUD_RATE / 1000.0;
     localparam integer BAUD_COUNT = (INPUT_CLK_KHZ / (BAUD_RATE_KHZ * 2) - 1);
 
-
-
-
     typedef enum {IDLE, TRANS} uart_state;
     uart_state current_state, next_state;
     
