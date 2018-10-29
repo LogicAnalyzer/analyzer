@@ -41,7 +41,7 @@ clk_gen ledclock(
 );
 bcd_to_7seg bcd7    (hold_input[39:36], digit7);
 bcd_to_7seg bcd6    (hold_input[35:32], digit6);
-bcd_to_7seg bcd5    (hold_input[24:20], digit5);
+bcd_to_7seg bcd5    (hold_input[23:20], digit5);
 bcd_to_7seg bcd4    (hold_input[19:16], digit4);
 bcd_to_7seg bcd3    (hold_input[15:12], digit3);
 bcd_to_7seg bcd2    (hold_input[11:8], digit2);
@@ -51,7 +51,7 @@ led_mux led_mux (led_clk, reset, digit7, digit6, digit5, digit4, digit3, digit2,
 
 UART_com uart(
  .input_clk(clock),
- .reset(reset),
+ .reset(~reset),
  .trans_en(tran_uart),
  .Rx(rx),
  .Tx(tx),
@@ -70,8 +70,26 @@ command_decoder cmd_decode(
    .command(command)
 );
 
-always@(posedge data_rdy) begin
-    hold_input <= {32'b0, recv_data};
+always@(posedge checkcode) begin
+    hold_input <= {opcode,command};
 end
+
+// reg [13:0] baud_counter;
+// reg baud_clock;  
+//always @(posedge baud_clock or posedge reset)begin
+//         if (reset) hold_input <= 40'b0;
+//         else if(data_rdy) begin
+//             hold_input <= {32'b0, recv_data};
+//             end
+// end 
+ 
+// always_ff@( posedge clock )begin
+//        if (baud_counter == 14'd5207) begin
+//            baud_clock <= ~baud_clock;
+//            baud_counter <= 14'b0;
+//        end else begin
+//            baud_counter <= baud_counter + 14'b1;
+//        end
+//    end  
     
 endmodule

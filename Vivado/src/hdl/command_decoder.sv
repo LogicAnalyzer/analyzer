@@ -34,10 +34,11 @@ module command_decoder(
     parameter BYTE2 = 3'b011;
     parameter BYTE3 = 3'b100;
     parameter RECIEVED = 3'b101;
+    parameter RECIEVED2 = 3'b111;
 
     reg [2:0] CS, NS;    
    
-always@(posedge clock or negedge reset) begin
+always@(posedge clock or posedge reset) begin
         if(reset) begin
             CS <= IDLE;          
         end else begin
@@ -45,7 +46,7 @@ always@(posedge clock or negedge reset) begin
         end
     end
     
-always@(*) begin
+always@(CS, byte_in_ready) begin
     case (CS)
         IDLE: begin             
             if(byte_in_ready) begin
@@ -89,6 +90,10 @@ always@(*) begin
          end     
         end
         RECIEVED: begin
+            cmd_recieved <= 1'b1;
+            NS <= RECIEVED2;
+        end
+        RECIEVED2: begin
             cmd_recieved <= 1'b1;
             NS <= IDLE;
         end
