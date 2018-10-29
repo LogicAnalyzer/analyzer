@@ -27,16 +27,22 @@ module command_decoder(
     output reg [7:0] opcode,
     output reg [31:0] command
     );
-        
-    parameter IDLE = 3'b000;
-    parameter BYTE0 = 3'b001;
-    parameter BYTE1 = 3'b010;
-    parameter BYTE2 = 3'b011;
-    parameter BYTE3 = 3'b100;
-    parameter RECIEVED = 3'b101;
-    parameter RECIEVED2 = 3'b111;
+    
+    parameter IDLE_f = 4'b1000;
+    parameter BYTE0_f = 4'b1001;
+    parameter BYTE1_f = 4'b1010;
+    parameter BYTE2_f = 4'b1011;
+    parameter BYTE3_f= 4'b1100;
+    parameter RECIEVED_f = 4'b1101;    
+    parameter IDLE = 4'b0000;
+    parameter BYTE0 = 4'b0001;
+    parameter BYTE1 = 4'b0010;
+    parameter BYTE2 = 4'b0011;
+    parameter BYTE3 = 4'b0100;
+    parameter RECIEVED = 4'b0101;
+    parameter RECIEVED2 = 4'b0111;
 
-    reg [2:0] CS, NS;    
+    reg [3:0] CS, NS;    
    
 always@(posedge clock or posedge reset) begin
         if(reset) begin
@@ -46,40 +52,68 @@ always@(posedge clock or posedge reset) begin
         end
     end
     
-always@(CS, byte_in_ready) begin
+always@(*) begin
     case (CS)
         IDLE: begin             
             if(byte_in_ready) begin
                opcode <= byte_in;
-               NS <= BYTE0;
+               NS <= IDLE_f;
             end else begin
                NS <= IDLE;
             end
             cmd_recieved <= 1'b0;
         end
+        IDLE_f: begin
+            if (~byte_in_ready) begin
+                NS <= BYTE0;
+            end else begin
+                NS <= IDLE_f;
+                end
+        end
         BYTE0: begin
             if(byte_in_ready) begin
                 command[31:24] <= byte_in;
-                NS <= BYTE1; 
+                NS <= BYTE0_f; 
              end else begin
                 NS <= BYTE0;
             end
         end
+        BYTE0_f: begin
+            if (~byte_in_ready) begin
+                NS <= BYTE1;
+            end else begin
+                NS <= BYTE0_f;
+                end
+        end
         BYTE1: begin
             if(byte_in_ready) begin
                 command[23:16] <= byte_in;
-                NS <= BYTE2; 
+                NS <= BYTE1_f; 
             end else begin
                 NS <= BYTE1;
             end
         end
+        BYTE1_f: begin
+            if (~byte_in_ready) begin
+                NS <= BYTE2;
+            end else begin
+                NS <= BYTE1_f;
+                end
+        end
         BYTE2: begin
            if(byte_in_ready) begin
                  command[15:8] <= byte_in;
-                 NS <= BYTE3; 
+                 NS <= BYTE2_f; 
             end else begin
                  NS <= BYTE2;
             end     
+        end
+        BYTE2_f: begin
+            if (~byte_in_ready) begin
+                NS <= BYTE3;
+            end else begin
+                NS <= BYTE2_f;
+                end
         end
         BYTE3: begin
            if(byte_in_ready) begin
@@ -90,10 +124,6 @@ always@(CS, byte_in_ready) begin
          end     
         end
         RECIEVED: begin
-            cmd_recieved <= 1'b1;
-            NS <= RECIEVED2;
-        end
-        RECIEVED2: begin
             cmd_recieved <= 1'b1;
             NS <= IDLE;
         end
