@@ -108,9 +108,9 @@ set_property -dict { PACKAGE_PIN N17   IOSTANDARD LVCMOS33 } [get_ports { reset 
 
 ##Pmod Header JA
 
-#set_property -dict { PACKAGE_PIN C17   IOSTANDARD LVCMOS33 } [get_ports { indata[0] }]; #IO_L20N_T3_A19_15 Sch=indata[1]
-#set_property -dict { PACKAGE_PIN D18   IOSTANDARD LVCMOS33 } [get_ports { indata[1] }]; #IO_L21N_T3_DQS_A18_15 Sch=indata[2]
-#set_property -dict { PACKAGE_PIN G17   IOSTANDARD LVCMOS33 } [get_ports { indata[3] }]; #IO_L18N_T2_A23_15 Sch=indata[4]
+set_property -dict { PACKAGE_PIN C17   IOSTANDARD LVCMOS33 } [get_ports { rx_test }]; #IO_L20N_T3_A19_15 Sch=indata[1]
+set_property -dict { PACKAGE_PIN D18   IOSTANDARD LVCMOS33 } [get_ports { clock_test }]; #IO_L21N_T3_DQS_A18_15 Sch=indata[2]
+set_property -dict { PACKAGE_PIN G17   IOSTANDARD LVCMOS33 } [get_ports { data_rdy_test }]; #IO_L18N_T2_A23_15 Sch=indata[4]
 #set_property -dict { PACKAGE_PIN D17   IOSTANDARD LVCMOS33 } [get_ports { indata[4] }]; #IO_L16N_T2_A27_15 Sch=indata[7]
 #set_property -dict { PACKAGE_PIN E17   IOSTANDARD LVCMOS33 } [get_ports { indata[5] }]; #IO_L16P_T2_A28_15 Sch=indata[8]
 #set_property -dict { PACKAGE_PIN F18   IOSTANDARD LVCMOS33 } [get_ports { indata[6] }]; #IO_L22N_T3_A16_15 Sch=indata[9]
@@ -119,14 +119,14 @@ set_property -dict { PACKAGE_PIN N17   IOSTANDARD LVCMOS33 } [get_ports { reset 
 
 #Pmod Header JB
 
-#set_property -dict { PACKAGE_PIN D14   IOSTANDARD LVCMOS33 } [get_ports { indata[8] }]; #IO_L1P_T0_AD0P_15 Sch=indata[1]
-#set_property -dict { PACKAGE_PIN F16   IOSTANDARD LVCMOS33 } [get_ports { indata[9] }]; #IO_L14N_T2_SRCC_15 Sch=indata[2]
-#set_property -dict { PACKAGE_PIN G16   IOSTANDARD LVCMOS33 } [get_ports { indata[10] }]; #IO_L13N_T2_MRCC_15 Sch=indata[3]
-#set_property -dict { PACKAGE_PIN H14   IOSTANDARD LVCMOS33 } [get_ports { indata[11] }]; #IO_L15P_T2_DQS_15 Sch=indata[4]
-#set_property -dict { PACKAGE_PIN E16   IOSTANDARD LVCMOS33 } [get_ports { indata[12] }]; #IO_L11N_T1_SRCC_15 Sch=indata[7]
-#set_property -dict { PACKAGE_PIN F13   IOSTANDARD LVCMOS33 } [get_ports { indata[13] }]; #IO_L5P_T0_AD9P_15 Sch=indata[8]
-#set_property -dict { PACKAGE_PIN G13   IOSTANDARD LVCMOS33 } [get_ports { indata[14] }]; #IO_0_15 Sch=indata[9]
-#set_property -dict { PACKAGE_PIN H16   IOSTANDARD LVCMOS33 } [get_ports { indata[15] }]; #IO_L13P_T2_MRCC_15 Sch=indata[10]
+set_property -dict { PACKAGE_PIN D14   IOSTANDARD LVCMOS33 } [get_ports { recv_data_test[0] }]; #IO_L1P_T0_AD0P_15 Sch=indata[1]
+set_property -dict { PACKAGE_PIN F16   IOSTANDARD LVCMOS33 } [get_ports { recv_data_test[1] }]; #IO_L14N_T2_SRCC_15 Sch=indata[2]
+set_property -dict { PACKAGE_PIN G16   IOSTANDARD LVCMOS33 } [get_ports { recv_data_test[2] }]; #IO_L13N_T2_MRCC_15 Sch=indata[3]
+set_property -dict { PACKAGE_PIN H14   IOSTANDARD LVCMOS33 } [get_ports { recv_data_test[3] }]; #IO_L15P_T2_DQS_15 Sch=indata[4]
+set_property -dict { PACKAGE_PIN E16   IOSTANDARD LVCMOS33 } [get_ports { recv_data_test[4] }]; #IO_L11N_T1_SRCC_15 Sch=indata[7]
+set_property -dict { PACKAGE_PIN F13   IOSTANDARD LVCMOS33 } [get_ports { recv_data_test[5] }]; #IO_L5P_T0_AD9P_15 Sch=indata[8]
+set_property -dict { PACKAGE_PIN G13   IOSTANDARD LVCMOS33 } [get_ports { recv_data_test[6] }]; #IO_0_15 Sch=indata[9]
+set_property -dict { PACKAGE_PIN H16   IOSTANDARD LVCMOS33 } [get_ports { recv_data_test[7] }]; #IO_L13P_T2_MRCC_15 Sch=indata[10]
 
 
 ##Pmod Header JC

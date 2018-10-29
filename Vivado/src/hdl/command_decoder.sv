@@ -118,10 +118,17 @@ always@(*) begin
         BYTE3: begin
            if(byte_in_ready) begin
               command[7:0] <= byte_in;
-              NS <= RECIEVED; 
+              NS <= BYTE3_f; 
          end else begin
               NS <= BYTE3;
          end     
+        end
+        BYTE3_f: begin
+            if (~byte_in_ready) begin
+                NS <= RECIEVED;
+            end else begin
+                NS <= BYTE3_f;
+                end
         end
         RECIEVED: begin
             cmd_recieved <= 1'b1;
