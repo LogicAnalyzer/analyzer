@@ -25,7 +25,7 @@ module UART_com(
 		input [7:0] 	data_out,
 		output 			Tx,
 		output [7:0]	data_received,
-		output reg      data_rdy
+		output reg         data_rdy
     );
     
     wire data_rdy_pre;

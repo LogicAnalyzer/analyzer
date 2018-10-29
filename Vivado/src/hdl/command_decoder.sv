@@ -25,25 +25,26 @@ module command_decoder(
     input [7:0] byte_in,
     output reg cmd_recieved,
     output reg [7:0] opcode,
-    output reg [31:0] command
+    output reg [31:0] command,
+    output [3:0] cs_out
     );
     
-    parameter IDLE_f = 4'b1000;
-    parameter BYTE0_f = 4'b1001;
-    parameter BYTE1_f = 4'b1010;
-    parameter BYTE2_f = 4'b1011;
-    parameter BYTE3_f= 4'b1100;
-    parameter RECIEVED_f = 4'b1101;    
-    parameter IDLE = 4'b0000;
-    parameter BYTE0 = 4'b0001;
-    parameter BYTE1 = 4'b0010;
-    parameter BYTE2 = 4'b0011;
-    parameter BYTE3 = 4'b0100;
-    parameter RECIEVED = 4'b0101;
-    parameter RECIEVED2 = 4'b0111;
+    
+parameter IDLE =    4'b0000;
+parameter IDLE_f =  4'b1000;
+parameter BYTE0 =   4'b0001;
+parameter BYTE0_f = 4'b1001;
+parameter BYTE1 =   4'b0010;
+parameter BYTE1_f = 4'b1010;
+parameter BYTE2 =   4'b0011;
+parameter BYTE2_f = 4'b1011;
+parameter BYTE3 =   4'b0100;
+parameter BYTE3_f=  4'b1100;
+parameter RECIEVED_f = 4'b1101;    
+parameter RECIEVED =    4'b0101;
 
     reg [3:0] CS, NS;    
-   
+    assign cs_out = CS;
 always@(posedge clock or posedge reset) begin
         if(reset) begin
             CS <= IDLE;          
@@ -52,7 +53,7 @@ always@(posedge clock or posedge reset) begin
         end
     end
     
-always@(*) begin
+always@(posedge clock) begin
     case (CS)
         IDLE: begin             
             if(byte_in_ready) begin

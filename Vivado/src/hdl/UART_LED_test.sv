@@ -26,20 +26,23 @@ module UART_LED_test(
     output [7:0] LEDSEL, LEDOUT,
     
     output [7:0] recv_data_test,
-    output rx_test, data_rdy_test, clock_test
+    output [3:0] LED,
+    output rx_test, data_rdy_test, checkcode_test
 );
 
 wire tran_uart, data_rdy, checkcode, led_clk;
 wire [7:0] tran_data, recv_data;
+wire [3:0] cs;
 wire [7:0] opcode;
 wire [31:0] command;
 wire [7:0] digit0, digit1, digit2, digit3, digit4, digit5, digit6, digit7;
 reg [39:0] hold_input;
 
 assign rx_test = rx;
-assign recv_data_test = recv_data;
+assign recv_data_test = {4'b0,cs};
 assign data_rdy_test = data_rdy;
-assign clock_test = clock;
+assign checkcode_test = checkcode;
+assign LED = cs;
 
 clk_gen ledclock(
     .clk100MHz(clock),
@@ -75,7 +78,8 @@ command_decoder cmd_decode(
    .byte_in_ready(data_rdy),
    .cmd_recieved(checkcode),
    .opcode(opcode),
-   .command(command)
+   .command(command),
+   .cs_out(cs)
 );
 
 always@(posedge checkcode) begin
