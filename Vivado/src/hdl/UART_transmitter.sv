@@ -23,7 +23,7 @@
 module UART_transmitter(
     input input_clk, reset, trans_en,
     input [7:0]     data_out,
-    output logic          Tx
+    output logic          Tx, tx_busy
     );
     typedef enum {IDLE, TRANS} uart_state;
     uart_state current_state, next_state;
@@ -72,10 +72,12 @@ module UART_transmitter(
                     next_state <= TRANS;
                     shift <= 1'b0;
                     Tx <= 1'b1;
+                    tx_busy <= 1'b1;
                 end else begin
                     next_state <= IDLE;
                     shift <= 1'b0;
                     Tx <= 1'b1;
+                    tx_busy <= 1'b0;
                 end
             end
             TRANS: begin
@@ -83,16 +85,19 @@ module UART_transmitter(
                     shift <= 1'b1;
                     Tx <= data_packet[0];
                     next_state <= TRANS;
+                    tx_busy <= 1'b1;
                 end else begin
                     next_state <= IDLE;
                     shift <= 1'b0;
                     Tx <= 1'b1;
+                    tx_busy <= 1'b1;
                 end
             end
             default: begin
                 next_state <= IDLE;
                 Tx <= 1'b1;
                 shift <= 1'b0;
+                tx_busy <= 1'b1;
             end
         endcase
     end

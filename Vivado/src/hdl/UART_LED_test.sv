@@ -82,6 +82,10 @@ command_decoder cmd_decode(
    .cs_out(cs)
 );
 
+controller ctrl_unit(
+
+);
+
 always@(posedge checkcode) begin
     hold_input <= {opcode,command};
 end

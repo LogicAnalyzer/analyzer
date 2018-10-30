@@ -23,7 +23,7 @@
 module UART_com(
 		input 			input_clk, reset, trans_en, Rx,
 		input [7:0] 	data_out,
-		output 			Tx,
+		output 			Tx, tx_busy,
 		output [7:0]	data_received,
 		output reg         data_rdy
     );
@@ -39,6 +39,6 @@ module UART_com(
     );
 
 	UART_transmitter UART_transmitter_i(
-     .input_clk(input_clk), .reset(reset), .trans_en(trans_en), .data_out(data_out), .Tx(Tx)
+     .input_clk(input_clk), .reset(reset), .trans_en(trans_en), .data_out(data_out), .Tx(Tx), .tx_busy(tx_busy)
     );
 endmodule

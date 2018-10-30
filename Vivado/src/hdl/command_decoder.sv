@@ -25,8 +25,7 @@ module command_decoder(
     input [7:0] byte_in,
     output reg cmd_recieved,
     output reg [7:0] opcode,
-    output reg [31:0] command,
-    output [3:0] cs_out
+    output reg [31:0] command
     );
     
     
@@ -43,8 +42,8 @@ parameter BYTE3_f=  4'b1100;
 parameter RECIEVED_f = 4'b1101;    
 parameter RECIEVED =    4'b0101;
 
-    reg [3:0] CS, NS;    
-    assign cs_out = CS;
+reg [3:0] CS, NS;    
+    
 always@(posedge clock or posedge reset) begin
         if(reset) begin
             CS <= IDLE;          
