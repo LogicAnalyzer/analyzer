@@ -21,8 +21,8 @@
 
 
 module mux_8(
-    input [7:0] A, B,
     input sel,
+    input [7:0] A, B,    
     output [7:0] C
     );
     assign C = (sel) ? A : B;    

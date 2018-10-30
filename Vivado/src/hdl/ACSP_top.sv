@@ -30,9 +30,9 @@ module ACSP_top(
     output [3:0] LED
     );
     
-wire [SAMPLE_WIDTH-1:0] fallPattern, risePattern, dataSyncToSampler;
+wire [SAMPLE_WIDTH-1:0] fallPattern, risePattern, dataSyncToSampler, dataSamplerToFIFO;
 wire [23:0] divider;
-wire edge_capture, run, arm, opcode_rdy, data_rdy, tran_meta_data, send_id, dataSamplerReady;
+wire edge_capture, run, arm, dataValidToFIFO, opcode_rdy, data_rdy, tran_meta_data, send_id, dataSamplerReady;
 wire meta_transmit_finish, begin_meta_transmit, tx_busy, tran_uart, data_meta_mux;
 wire [7:0] opcode, recv_data, transmit_meta_byte, tran_data;
 wire [31:0] command;
@@ -83,20 +83,29 @@ command_decoder cmd_decode(
    .command(command)
 );
   
-controller control_unit(    
+controller #(SAMPLE_WIDTH) control_unit(    
     .clock(system_clock),
+    .reset(reset),
     //Status Signals
+    .opcode(opcode),
+    .command(command),
+    .cmd_recv_rx(opcode_rdy),
     .run(run),
     .transmit_busy(tx_busy),
-    .cmd_recv_rx(opcode_rdy),
+    .meta_transmit_finish(meta_transmit_finish),
     //Control Signals
     .divider(divider),
     .data_meta_mux(data_meta_mux),
-    .arm(arm)
+    .arm(arm),
+    .send_id(send_id),
+    .begin_meta_transmit(begin_meta_transmit),
+    .risePattern(risePattern),
+    .fallPattern(fallPattern)
 );
 
 metadata_sender metadata(
     .clock(system_clock),
+    .reset(reset),
     .begin_meta_transmit(begin_meta_transmit),
     .meta_transmit_finish(meta_transmit_finish),
     .send_id(send_id),
@@ -105,6 +114,7 @@ metadata_sender metadata(
     .tx_busy(tx_busy)  
 );
 
-transmit_mux mux_8(data_meta_mux, dataSamplerToFIFO, transmit_meta_byte, tran_data);
-assign tran_uart = (data_meta_mux) ? dataSamplerReady : transmit_meta_byte;
+//Transmit muxes
+assign tran_data = (data_meta_mux) ? dataSamplerToFIFO : transmit_meta_byte;
+assign tran_uart = (data_meta_mux) ? dataSamplerReady : tran_meta_data;
 endmodule
