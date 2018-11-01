@@ -117,4 +117,7 @@ metadata_sender metadata(
 //Transmit muxes
 assign tran_data = (data_meta_mux) ? dataSamplerToFIFO : transmit_meta_byte;
 assign tran_uart = (data_meta_mux) ? dataSamplerReady : tran_meta_data;
+
+
+
 endmodule

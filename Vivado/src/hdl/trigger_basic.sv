@@ -61,8 +61,13 @@ generate
             run <= 1;
             done <= 1;
         end
-        if (done) begin
+        else if (done) begin
             run <= 0;
+            done <= done;
+        end
+        else begin
+            run <= run;
+            done <= done;
         end
     end
     
