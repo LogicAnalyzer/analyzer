@@ -1,5 +1,4 @@
 `timescale 1ns / 1ps
-
 module BRAM2K8bit_TB(
     );
 

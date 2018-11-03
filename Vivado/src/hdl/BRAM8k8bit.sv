@@ -43,7 +43,6 @@ module BRAM8k8bit(
     //
     // Instantiate the 2Kx8 RAM's...
     //
-
     BRAM2K8bit ram0 (
         .CLK(CLK),
         .EN(ram_EN[0]),
@@ -51,7 +50,6 @@ module BRAM8k8bit(
         .ADDR(ADDR[10:0]),
         .data_in(DIN),
         .data_out(ram0_DOUT));
-
 
     BRAM2K8bit ram1 (
         .CLK(CLK),
@@ -61,7 +59,6 @@ module BRAM8k8bit(
         .data_in(DIN),
         .data_out(ram1_DOUT));
 
-
     BRAM2K8bit ram2 (
         .CLK(CLK),
         .EN(ram_EN[2]),
@@ -69,7 +66,6 @@ module BRAM8k8bit(
         .ADDR(ADDR[10:0]),
         .data_in(DIN),
         .data_out(ram2_DOUT));
-
     BRAM2K8bit ram3 (
         .CLK(CLK),
         .EN(ram_EN[3]),
