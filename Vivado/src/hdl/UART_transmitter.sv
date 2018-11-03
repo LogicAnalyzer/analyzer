@@ -69,35 +69,35 @@ module UART_transmitter(
         case (current_state)
             IDLE: begin
                 if(reset & trans_en)begin
-                    next_state <= TRANS;
-                    shift <= 1'b0;
-                    Tx <= 1'b1;
-                    tx_busy <= 1'b1;
+                    next_state = TRANS;
+                    shift = 1'b0;
+                    Tx = 1'b1;
+                    tx_busy = 1'b1;
                 end else begin
-                    next_state <= IDLE;
-                    shift <= 1'b0;
-                    Tx <= 1'b1;
-                    tx_busy <= 1'b0;
+                    next_state = IDLE;
+                    shift = 1'b0;
+                    Tx = 1'b1;
+                    tx_busy = 1'b0;
                 end
             end
             TRANS: begin
                 if(bit_counter > 4'b0)begin
-                    shift <= 1'b1;
-                    Tx <= data_packet[0];
-                    next_state <= TRANS;
-                    tx_busy <= 1'b1;
+                    shift = 1'b1;
+                    Tx = data_packet[0];
+                    next_state = TRANS;
+                    tx_busy = 1'b1;
                 end else begin
-                    next_state <= IDLE;
-                    shift <= 1'b0;
-                    Tx <= 1'b1;
-                    tx_busy <= 1'b1;
+                    next_state = IDLE;
+                    shift = 1'b0;
+                    Tx = 1'b1;
+                    tx_busy = 1'b1;
                 end
             end
             default: begin
-                next_state <= IDLE;
-                Tx <= 1'b1;
-                shift <= 1'b0;
-                tx_busy <= 1'b1;
+                next_state = IDLE;
+                Tx = 1'b1;
+                shift = 1'b0;
+                tx_busy = 1'b1;
             end
         endcase
     end

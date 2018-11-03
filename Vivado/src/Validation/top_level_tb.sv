@@ -22,9 +22,7 @@
 
 module top_level_tb();
 
-logic baud_clock, input_clk, reset, Rx, Tx, data_rdy, ext_reset;
-logic [7:0] data_received;
-integer current_data, error_count, success_count;
+logic baud_clock, input_clk, reset, Rx, Tx, ext_reset;
 
 localparam real BAUD_RATE = 9600;
 localparam real BAUD_RATE_KHZ = BAUD_RATE / 1000;
@@ -46,7 +44,6 @@ function void initialize ();
     baud_clock =0;
     reset = 0;
     Rx = 1;
-    current_data =0;
 endfunction : initialize
     
 task send_data(input [7:0] data);
@@ -80,11 +77,23 @@ initialize();
 ext_reset = 1;
 #5;
 ext_reset = 0;
-send_data(8'h02);
+#5
+ext_reset = 1;
+#5;
+ext_reset = 0;
+#5
+send_data(8'h04);
+#10;
 send_data(8'h00);
+#10;
 send_data(8'h00);
+#10;
 send_data(8'h00);
+#10;
 send_data(8'h00);
+#10;
+send_data(8'h00);
+#10;
 
 end //initial begin
             
