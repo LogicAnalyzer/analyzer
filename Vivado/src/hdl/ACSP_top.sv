@@ -33,7 +33,7 @@ module ACSP_top(
 wire [SAMPLE_WIDTH-1:0] fallPattern, risePattern, dataSyncToSampler, dataSamplerToFIFO;
 wire [23:0] divider;
 wire edge_capture, run, arm, dataValidToFIFO, opcode_rdy, data_rdy, tran_meta_data, send_id, dataSamplerReady;
-wire meta_transmit_finish, begin_meta_transmit, tx_busy, tran_uart, data_meta_mux;
+wire meta_busy, begin_meta_transmit, tx_busy, tran_uart, data_meta_mux;
 wire [7:0] opcode, recv_data, transmit_meta_byte, tran_data;
 wire [31:0] command;
    
@@ -92,7 +92,7 @@ controller #(SAMPLE_WIDTH) control_unit(
     .cmd_recv_rx(opcode_rdy),
     .run(run),
     .transmit_busy(tx_busy),
-    .meta_transmit_finish(meta_transmit_finish),
+    .meta_busy(meta_busy),
     //Control Signals
     .divider(divider),
     .data_meta_mux(data_meta_mux),
@@ -107,7 +107,7 @@ metadata_sender metadata(
     .clock(system_clock),
     .reset(reset),
     .begin_meta_transmit(begin_meta_transmit),
-    .meta_transmit_finish(meta_transmit_finish),
+    .meta_busy(meta_busy),
     .send_id(send_id),
     .tran_data(tran_meta_data),
     .transmit_byte(transmit_meta_byte),

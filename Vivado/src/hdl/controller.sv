@@ -29,7 +29,7 @@ module controller #(parameter SAMPLE_WIDTH = 8)(
     input logic cmd_recv_rx, //signal high when command decoder recieved all 5 bytes
     input logic run, //run signal from trigger
     input logic transmit_busy, //UART transmitter busy
-    input logic meta_transmit_finish, //meta unit finished with its transmission
+    input logic meta_busy, //meta unit finished with its transmission
  
 //Control Signals
     output logic reset,
@@ -44,11 +44,11 @@ module controller #(parameter SAMPLE_WIDTH = 8)(
 
 logic [7:0] current_opcode;
 logic [31:0] current_command;
-typedef enum {IDLE, META_START, META_WAIT, CMD_RECIEVED} controller_state;
+typedef enum {IDLE, META_WAIT, CMD_RECIEVED} controller_state;
 controller_state CS, NS;
 
 always_ff@(posedge clock or posedge ext_reset) begin
-    if (reset) begin
+    if (ext_reset) begin
     CS <= IDLE;
     end else begin
     CS <= NS;
@@ -56,6 +56,8 @@ always_ff@(posedge clock or posedge ext_reset) begin
 end
 
 always_comb begin
+send_id = 1'b0;
+begin_meta_transmit = 1'b0;
 case(CS)
 //IDLE: Power on state, reset state, waiting for opcode from UART
 IDLE: begin
@@ -76,39 +78,30 @@ CMD_RECIEVED: begin
     
     end
     8'H02: begin //Query ID
-        NS = META_START;
+        begin_meta_transmit = 1'b1;
+        data_meta_mux = 1'b0;        
         send_id = 1'b1; 
+        NS = META_WAIT;
     end
     8'H04: begin//Query Metadata
-        NS = META_START;
+        begin_meta_transmit = 1'b1;
+        data_meta_mux = 1'b0;        
         send_id = 1'b0; 
+        NS = META_WAIT;
     end
     default: NS = IDLE;
     endcase
 end
-//META_START: Start the metadata transmission.
-META_START: begin
-
-end
 //META_WAIT: Wait for metadata module to finish transmission.
 META_WAIT: begin
-
+    if(meta_busy) begin
+        NS = META_WAIT;
+    end else begin
+        NS = IDLE;
+    end
 end
 
 default : NS <= IDLE;
 endcase
-end //always_comb_case
-    
-
-
-
-
-
-
-
-
-
-
-
-    
+end //always_comb_case    
 endmodule
