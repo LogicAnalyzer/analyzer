@@ -21,21 +21,22 @@
 
 
 module UART_com(
-		input 			input_clk, reset, trans_en, Rx,
-		input [7:0] 	data_out,
-		output 			Tx, tx_busy,
-		output [7:0]	data_received,
-		output reg         data_rdy
+		input logic			input_clk, reset, trans_en, Rx,
+		input logic [7:0] 	data_out,
+		output logic		Tx, tx_busy,
+		output logic [7:0]	data_received,
+		output logic         data_rdy
+		
     );
     
-    wire data_rdy_pre;
-    always@(posedge input_clk) begin
-        data_rdy <= data_rdy_pre;
-    end
+//    logic data_rdy_pre;
+//    always_ff@(posedge input_clk) begin
+//        data_rdy <= data_rdy_pre;
+//    end
     
     
 	UART_receiver UART_receiver_i(
-     .input_clk(input_clk), .reset(reset),  .data_received(data_received), .data_rdy(data_rdy_pre), .Rx(Rx)
+     .input_clk(input_clk), .reset(reset),  .data_received(data_received), .data_rdy(data_rdy), .Rx(Rx)
     );
 
 	UART_transmitter UART_transmitter_i(

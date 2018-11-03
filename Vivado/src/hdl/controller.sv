@@ -44,14 +44,14 @@ module controller #(parameter SAMPLE_WIDTH = 8)(
 
 logic [7:0] current_opcode;
 logic [31:0] current_command;
-typedef enum {IDLE, META_WAIT, CMD_RECIEVED} controller_state;
+typedef enum {IDLE, META_WAIT, CMD_RECIEVED, RESETS} controller_state;
 controller_state CS, NS;
 
 always_ff@(posedge clock or posedge ext_reset) begin
     if (ext_reset) begin
-    CS <= IDLE;
+        CS <= RESETS;   
     end else begin
-    CS <= NS;
+        CS <= NS;
     end
 end
 
@@ -102,7 +102,10 @@ META_WAIT: begin
         NS = IDLE;
     end
 end
-
+RESETS: begin
+    reset = 1'b1;
+    NS = IDLE;
+end
 default : NS <= IDLE;
 endcase
 end //always_comb_case    

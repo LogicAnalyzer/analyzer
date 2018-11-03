@@ -33,9 +33,11 @@ module ACSP_top(
 logic [SAMPLE_WIDTH-1:0] fallPattern, risePattern, dataSyncToSampler, dataSamplerToFIFO;
 logic [23:0] divider;
 logic edge_capture, run, arm, dataValidToFIFO, opcode_rdy, data_rdy, tran_meta_data, send_id, dataSamplerReady;
-logic meta_busy, begin_meta_transmit, tx_busy, tran_uart, data_meta_mux;
+logic meta_busy, begin_meta_transmit, tx_busy, tran_uart, data_meta_mux, notreset, reset;
 logic [7:0] opcode, recv_data, transmit_meta_byte, tran_data;
 logic [31:0] command;
+
+assign notreset = ~reset;
    
 input_sync #(SAMPLE_WIDTH) sync_module(
     .clock(system_clock),
@@ -63,7 +65,7 @@ trigger_basic #(SAMPLE_WIDTH) trigger(
 
 UART_com uart(
     .input_clk(system_clock),
-    .reset(~reset),
+    .reset(notreset),
     .trans_en(tran_uart),
     .Rx(rx),
     .Tx(tx),
