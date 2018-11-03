@@ -21,7 +21,7 @@
 
 
 module UART_transmitter(
-    input input_clk, reset, trans_en,
+    input baud_clock, reset, trans_en,
     input [7:0]     data_out,
     output logic          Tx, tx_busy
     );
@@ -29,25 +29,10 @@ module UART_transmitter(
     uart_state current_state, next_state;
     
     logic [3:0] bit_counter;
-    logic [12:0] baud_counter;
     logic [9:0] data_packet;
-    logic baud_clock;
     
     logic shift, load, clear;
     
-    always_ff@( posedge input_clk or negedge reset)begin
-        if(!reset)begin
-            baud_counter<= 14'b0;
-            baud_clock <= 1'b0;
-        end else begin
-            if (baud_counter == 14'd5207) begin
-                baud_clock <= ~baud_clock;
-                baud_counter <= 14'b0;
-            end else begin
-                baud_counter <= baud_counter + 14'b1;
-            end
-        end
-    end
     always_ff@( posedge baud_clock or negedge reset) begin
         if(!reset) begin
             current_state <= IDLE;
@@ -72,7 +57,7 @@ module UART_transmitter(
                     next_state = TRANS;
                     shift = 1'b0;
                     Tx = 1'b1;
-                    tx_busy = 1'b1;
+                    tx_busy = 1'b0;
                 end else begin
                     next_state = IDLE;
                     shift = 1'b0;
