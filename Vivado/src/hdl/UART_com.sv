@@ -53,6 +53,7 @@ module UART_com #(parameter INPUT_CLK_KHZ = 100_000, BAUD_RATE =9600)(
         end
     end
     
+    initial begin trans_latch <=0; end
     always@(posedge trans_en or posedge trans_busy)begin
     	if (trans_busy) trans_latch <=0;
     	else if (trans_en) trans_latch <=1;
