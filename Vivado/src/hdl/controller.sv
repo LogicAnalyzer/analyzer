@@ -34,7 +34,7 @@ module controller #(parameter SAMPLE_WIDTH = 8)(
 //Control Signals
     output logic reset,
     output logic [23:0] divider,
-    output logic data_meta_mux,
+    output logic data_meta_mux, //low for meta, high for data
     output logic arm,
     output logic send_id,
     output logic begin_meta_transmit,
@@ -61,17 +61,30 @@ case(CS)
 IDLE: begin
     if(cmd_recv_rx) begin
         NS = CMD_RECIEVED;
-        current_opcode = opcode ;
+        current_opcode = opcode;
         current_command = command;
     end else begin
         NS = IDLE;
-        current_opcode = 7'b0;
+        current_opcode = 8'b0;
         current_command = 32'b0;
     end
 end
 //CMD_RECIEVED: For each OP code, do something.
 CMD_RECIEVED: begin
-
+    case(opcode)
+    8'H00: begin //Reset Signal
+    
+    end
+    8'H02: begin //Query ID
+        NS = META_START;
+        send_id = 1'b1; 
+    end
+    8'H04: begin//Query Metadata
+        NS = META_START;
+        send_id = 1'b0; 
+    end
+    default: NS = IDLE;
+    endcase
 end
 //META_START: Start the metadata transmission.
 META_START: begin

@@ -28,17 +28,21 @@ module metadata_sender(
     input logic tx_busy, //Signal from transmitter, high if busy transmitting
     output logic [7:0] transmit_byte, //Byte to transmit
     output logic tran_data, //Transmit byte if tx_busy is low.
-    output logic meta_busy //Sends signal back to controller when operation complete
+    output logic meta_busy //Status signal back to controller when operation complete
 );
    
 //Initilizing the ROM to hold Metadata 
 `define ADDBYTE(cmd) meta_rom[i]=cmd; i=i+1
 `define ADDSHORT(cmd,b0) meta_rom[i]=cmd; meta_rom[i+1]=b0; i=i+2
 `define ADDLONG(cmd,b0,b1,b2,b3) meta_rom[i]=cmd; meta_rom[i+1]=b0; meta_rom[i+2]=b1; meta_rom[i+3]=b2; meta_rom[i+4]=b3; i=i+5
-reg [5:0] METADATA_LEN; // Position of last byte in ROM
-reg [5:0] data_addr, next_data_addr; // Pointers for ROM reading
-reg [7:0] meta_rom[63:0]; //ROM be here
-assign transmit_byte = meta_rom[data_addr]; 
+logic [5:0] METADATA_LEN; // Position of last byte in ROM
+logic [5:0] data_addr, next_data_addr; // Pointers for ROM reading
+logic [3:0] id_data_addr, next_id_data_addr; //Pointers for ID_reading
+logic [7:0] meta_rom[63:0]; //ROM be here
+logic [7:0] id_rom[4:0]; // ID ROM here
+logic send_id_reg;
+logic ID_ROM_LEN = 2'b11;
+assign transmit_byte = (send_id_reg) ? id_rom[id_data_addr] : meta_rom[data_addr];
 initial
 begin : meta
    integer i;
@@ -62,11 +66,13 @@ begin : meta
   METADATA_LEN = i;
 
   for (i=i; i<64; i=i+1) meta_rom[i]=0; // Padding end of ROM
+  //Set the ID Into the id_rom.
+  id_rom[0] = "A"; id_rom[1] = "C"; id_rom[2] = "S"; id_rom[3] = "P"; id_rom[4] = 0; 
 end 
    
    
 //FSM for Meta Transmission   
-typedef  enum {IDLE, TRANS, BUSY_TRANS} uart_state;
+typedef  enum {IDLE, TRANS, BUSY_TRANS, TRANS_ID, BUSY_TRANS_ID} uart_state;
 uart_state current_state, next_state;
 
    
@@ -74,9 +80,11 @@ always_ff @(posedge clock or posedge reset) begin
   if (reset) begin  
       current_state <= IDLE;
       data_addr <= 1'b0;
+      id_data_addr <= 1'b0;
   end else begin
       current_state <= next_state;
       data_addr <= next_data_addr;
+      id_data_addr <= next_id_data_addr;
   end
 end
 
@@ -86,7 +94,13 @@ meta_busy = 1'b0;
 case(current_state)
     IDLE: begin
         next_data_addr = 1'b0;
-        next_state = (!send_id && !tx_busy && begin_meta_transmit) ? TRANS : IDLE;    
+        next_id_data_addr = 1'b0;         
+        send_id_reg = send_id;  
+        if(send_id) begin
+            next_state = (!tx_busy && begin_meta_transmit) ? TRANS_ID : IDLE;  
+        end else begin
+            next_state = (!tx_busy && begin_meta_transmit) ? TRANS : IDLE;    
+        end  
     end
     TRANS: begin
         meta_busy = 1'b1;
@@ -100,6 +114,20 @@ case(current_state)
             next_state = (data_addr == METADATA_LEN) ? IDLE: TRANS;
         end else begin
             next_state = BUSY_TRANS;
+        end
+    end
+    TRANS_ID: begin
+        meta_busy = 1'b1;
+        tran_data = 1'b1;
+        next_id_data_addr = id_data_addr + 1'b1;
+        next_state = BUSY_TRANS_ID;
+    end
+    BUSY_TRANS_ID: begin
+        meta_busy = 1'b1;
+        if (!tx_busy) begin
+            next_state = (id_data_addr == 4) ? IDLE: TRANS_ID;
+        end else begin
+            next_state = BUSY_TRANS_ID;
         end
     end
     default: next_state = IDLE;    
