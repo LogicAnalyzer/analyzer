@@ -1,3 +1,4 @@
+`timescale 1ns / 1ps
 module BRAM2K8bit(
 	input CLK, EN, WE,
 	input [10:0] ADDR,
