@@ -1,4 +1,4 @@
-module BRAM8k9bit(
+module BRAM8k8bit(
     input CLK, WE, EN,
     input [12:0] ADDR,
     input [7:0] DIN,
@@ -44,7 +44,7 @@ module BRAM8k9bit(
     // Instantiate the 2Kx8 RAM's...
     //
 
-    RAMB16_S9 ram0 (
+    BRAM2K8bit ram0 (
         .CLK(CLK),
         .EN(ram_EN[0]),
         .WE(WE), 
@@ -53,7 +53,7 @@ module BRAM8k9bit(
         .data_out(ram0_DOUT));
 
 
-    RAMB16_S9 ram1 (
+    BRAM2K8bit ram1 (
         .CLK(CLK),
         .EN(ram_EN[1]),
         .WE(WE),
@@ -62,7 +62,7 @@ module BRAM8k9bit(
         .data_out(ram1_DOUT));
 
 
-    RAMB16_S9 ram2 (
+    BRAM2K8bit ram2 (
         .CLK(CLK),
         .EN(ram_EN[2]),
         .WE(WE),
@@ -70,7 +70,7 @@ module BRAM8k9bit(
         .data_in(DIN),
         .data_out(ram2_DOUT));
 
-    RAMB16_S9 ram3 (
+    BRAM2K8bit ram3 (
         .CLK(CLK),
         .EN(ram_EN[3]),
         .WE(WE),

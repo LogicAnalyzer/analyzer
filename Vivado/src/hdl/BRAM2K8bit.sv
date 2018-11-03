@@ -1,4 +1,4 @@
-module BRAM4K9bit(
+module BRAM2K8bit(
 	input CLK, EN, WE,
 	input [10:0] ADDR,
 	input [7:0] data_in,

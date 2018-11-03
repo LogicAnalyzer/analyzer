@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 
-module RAM16_S8_TB(
+module BRAM2K8bit_TB(
     );
 
 	logic CLK, EN, WE;
@@ -13,7 +13,7 @@ module RAM16_S8_TB(
     localparam real INPUT_CLK_KHZ = 100_000;
     localparam real INPUT_CLK_HALF_PERIOD_NS = ( 10**6 )/( INPUT_CLK_KHZ * 2 );
 
-	RAMB16_S8 DUT(
+	BRAM2K9bit DUT(
 		.CLK(CLK), .EN(EN), .WE(WE),
 		.ADDR(ADDR),
 		.data_in(data_in),
