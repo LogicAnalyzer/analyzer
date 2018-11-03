@@ -58,6 +58,7 @@ end
 always_comb begin
 send_id = 1'b0;
 begin_meta_transmit = 1'b0;
+reset = 1'b0;
 case(CS)
 //IDLE: Power on state, reset state, waiting for opcode from UART
 IDLE: begin
@@ -75,7 +76,8 @@ end
 CMD_RECIEVED: begin
     case(opcode)
     8'H00: begin //Reset Signal
-    
+        NS = IDLE;
+        reset = 1'b1;
     end
     8'H02: begin //Query ID
         begin_meta_transmit = 1'b1;

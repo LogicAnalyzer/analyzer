@@ -21,21 +21,21 @@
 parameter SAMPLE_WIDTH = 8;
 
 module ACSP_top(
-    input system_clock, reset,
+    input system_clock, ext_reset,
     input [SAMPLE_WIDTH-1:0] dataToSample,
     input rx,
-    output tx,
+    output tx
     //Testing LEDS
-    output [7:0] LEDSEL, LEDOUT,
-    output [3:0] LED
+//    output [7:0] LEDSEL, LEDOUT,
+//    output [3:0] LED
     );
     
-wire [SAMPLE_WIDTH-1:0] fallPattern, risePattern, dataSyncToSampler, dataSamplerToFIFO;
-wire [23:0] divider;
-wire edge_capture, run, arm, dataValidToFIFO, opcode_rdy, data_rdy, tran_meta_data, send_id, dataSamplerReady;
-wire meta_busy, begin_meta_transmit, tx_busy, tran_uart, data_meta_mux;
-wire [7:0] opcode, recv_data, transmit_meta_byte, tran_data;
-wire [31:0] command;
+logic [SAMPLE_WIDTH-1:0] fallPattern, risePattern, dataSyncToSampler, dataSamplerToFIFO;
+logic [23:0] divider;
+logic edge_capture, run, arm, dataValidToFIFO, opcode_rdy, data_rdy, tran_meta_data, send_id, dataSamplerReady;
+logic meta_busy, begin_meta_transmit, tx_busy, tran_uart, data_meta_mux;
+logic [7:0] opcode, recv_data, transmit_meta_byte, tran_data;
+logic [31:0] command;
    
 input_sync #(SAMPLE_WIDTH) sync_module(
     .clock(system_clock),
@@ -86,6 +86,7 @@ command_decoder cmd_decode(
 controller #(SAMPLE_WIDTH) control_unit(    
     .clock(system_clock),
     .reset(reset),
+    .ext_reset(ext_reset),
     //Status Signals
     .opcode(opcode),
     .command(command),
