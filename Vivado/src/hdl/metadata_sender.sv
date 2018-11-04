@@ -88,51 +88,52 @@ always_ff @(posedge clock or posedge reset) begin
   end
 end
 
-always_comb begin
-tran_data = 1'b0;
-meta_busy = 1'b0;
+//always_comb begin
+always_ff@(negedge clock) begin
 case(current_state)
     IDLE: begin
-        next_data_addr = 1'b0;
-        next_id_data_addr = 1'b0;         
+        tran_data <= 1'b0;
+        meta_busy <= 1'b0;
+        next_data_addr <= 1'b0;
+        next_id_data_addr <= 1'b0;         
         send_id_reg = send_id;  
         if(send_id) begin
-            next_state = (!tx_busy && begin_meta_transmit) ? TRANS_ID : IDLE;  
+            next_state <= (!tx_busy && begin_meta_transmit) ? TRANS_ID : IDLE;  
         end else begin
-            next_state = (!tx_busy && begin_meta_transmit) ? TRANS : IDLE;    
+            next_state <= (!tx_busy && begin_meta_transmit) ? TRANS : IDLE;    
         end  
     end
     TRANS: begin
-        meta_busy = 1'b1;
-        tran_data = 1'b1;
-        next_data_addr = data_addr + 1'b1;
-        next_state = BUSY_TRANS;
+        meta_busy <= 1'b1;
+        tran_data <= 1'b1;
+        next_data_addr <= data_addr + 1'b1;
+        next_state <= BUSY_TRANS;
     end
     BUSY_TRANS: begin
-        meta_busy = 1'b1;
-        tran_data = 1'b0;
+        meta_busy <= 1'b1;
+        tran_data <= 1'b0;
         if (!tx_busy) begin
-            next_state = (data_addr == METADATA_LEN) ? IDLE: TRANS;
+            next_state <= (data_addr == METADATA_LEN) ? IDLE: TRANS;
         end else begin
-            next_state = BUSY_TRANS;
+            next_state <= BUSY_TRANS;
         end
     end
     TRANS_ID: begin
-        meta_busy = 1'b1;
-        tran_data = 1'b1;
+        meta_busy <= 1'b1;
+        tran_data <= 1'b1;
         next_id_data_addr = id_data_addr + 1'b1;
-        next_state = BUSY_TRANS_ID;
+        next_state <= BUSY_TRANS_ID;
     end
     BUSY_TRANS_ID: begin
-        meta_busy = 1'b1;
-        tran_data = 1'b0;
+        meta_busy <= 1'b1;
+        tran_data <= 1'b0;
         if (!tx_busy) begin
-            next_state = (id_data_addr == 4) ? IDLE: TRANS_ID;
+            next_state <= (id_data_addr == 4) ? IDLE: TRANS_ID;
         end else begin
-            next_state = BUSY_TRANS_ID;
+            next_state <= BUSY_TRANS_ID;
         end
     end
-    default: next_state = IDLE;    
+    default: next_state <= IDLE;    
     endcase 
 end    
 endmodule

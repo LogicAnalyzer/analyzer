@@ -96,6 +96,7 @@ CMD_RECIEVED: begin
 end
 //META_WAIT: Wait for metadata module to finish transmission.
 META_WAIT: begin
+    begin_meta_transmit = 1'b0;
     if(meta_busy) begin
         NS = META_WAIT;
     end else begin
