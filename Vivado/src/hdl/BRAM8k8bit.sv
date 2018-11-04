@@ -11,7 +11,6 @@ module BRAM8k8bit(
     reg [3:0] ram_EN;
     always@(*)
     begin
-        #1;
         ram_EN = 0;
         ram_EN[ADDR[12:11]] = EN;
     end
@@ -24,13 +23,11 @@ module BRAM8k8bit(
 
     always@(*)
     begin
-        #1;
         next_dly_ADDR = ADDR[12:11];
     end
 
     always@(*)
     begin
-        #1;
         DOUT = 8'h0;
         case (dly_ADDR)
             2'h0 : begin DOUT = ram0_DOUT; end

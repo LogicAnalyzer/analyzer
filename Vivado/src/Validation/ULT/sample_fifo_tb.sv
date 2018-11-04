@@ -9,9 +9,9 @@ module sample_fifo_tb(
 	localparam real INPUT_CLK_KHZ = 100_000;
 	localparam real INPUT_CLK_HALF_PERIOD_NS = ( 10**6 )/( INPUT_CLK_KHZ * 2 );
 
-	logic CLK, en, rnw, clear, reset_n;
+	logic CLK, en, rnw, clear, reset_n, hold_window;
 	logic [7:0] data_in;
-	logic full, empty;
+	logic full, empty, data_valid;
 	logic [7:0] data_out;
 
 	int error_count,data_in_tb;
@@ -23,9 +23,11 @@ module sample_fifo_tb(
 
 	sample_fifo DUT(
 		.clk(CLK), .en(en), .rnw(rnw),
+		.hold_window(hold_window),
 		.clear(clear), .reset_n(reset_n),
 		.data_in(data_in), .full(full),
-		.empty(empty), .data_out(data_out)
+		.empty(empty), .data_valid(data_valid),
+		.data_out(data_out)
     );
 
 	initial forever begin
@@ -55,9 +57,8 @@ module sample_fifo_tb(
 	initial forever begin
 		@(posedge CLK);
 		
-		if (rnw) begin
-		    #4;
-			if(data_out != expected_data_q[0])begin
+		if (data_valid) begin
+			if(data_out !== expected_data_q[0])begin
 				$sformat(format_s,"Incorrect data, Expected: %8d Received: %8d", expected_data_q[0],  data_out );
 				report_error(format_s);
 			end else begin
@@ -78,7 +79,7 @@ module sample_fifo_tb(
 		while(1) begin
 			rand_rw = ($urandom_range(100,1));
 			data_in_tb = $urandom_range(255,0);
-			if (rand_rw > 40) begin
+			if (rand_rw > 50) begin
 				if (!fifo_is_full()) write();
 			end else begin
 				if(!fifo_is_empty()) read();
@@ -93,6 +94,7 @@ module sample_fifo_tb(
 		rnw    	= 1'b0; 
 		clear  	= 1'b0; 
 		reset_n	= 1'b1;
+		hold_window = 1'b0;
 		data_in	= 8'b0;
 
 		error_count	=0;
@@ -135,11 +137,13 @@ module sample_fifo_tb(
 	endfunction : fifo_is_full
 
 	function bit fifo_is_empty ();
-		return (expected_data_q.size() == 0);
+       return (DUT.wr_pointer - DUT.rd_pointer) == 0;
+		//return (expected_data_q.size() == 0);
 	endfunction : fifo_is_empty
 
 	function void report_error (input string error_message);
 		$timeformat(-9, 2, " ns", 0);
+		$display("!-->"); 
 		$display("    Error (%t): %s",$time(),error_message );
 
 		error_count = error_count+1;

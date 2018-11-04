@@ -1,15 +1,16 @@
 `timescale 1ns / 1ps
 
 module sample_fifo(
-	input clk, en, rnw, clear, reset_n,
+	input clk, en, rnw, clear, hold_window, reset_n,
 	input [7:0] data_in,
-	output full, empty,
+	output full, empty, reg data_valid,
 	output reg [7:0] data_out
     );
 	
 	reg  [15:0] wr_pointer, rd_pointer;
 	reg  [14:0] out_pointer;
 	reg  [3:0]  ram_EN;
+	reg  [1:0]	reg_sel_q;
 	wire [7:0]	data_out_0;
 	wire [7:0]	data_out_1;
 	wire [7:0]	data_out_2;
@@ -21,21 +22,21 @@ module sample_fifo(
 	assign out_pointer = rnw ? rd_pointer : wr_pointer;
 
 	always@(*) begin
-	    #1;
 	    ram_EN = 0;
 	    ram_EN[out_pointer[14:13]] = en;
 	end
 
+	/* RAM selector Logic */
+	always@(posedge clk) reg_sel_q<=out_pointer[14:13];
 	always@(*) begin
-		#1;
-		case(out_pointer[14:13])
-			2'b00: data_out = data_out_0;
-			2'b01: data_out = data_out_1;
-			2'b10: data_out = data_out_2;
-			2'b11: data_out = data_out_3;
+		case({data_valid,reg_sel_q})
+			3'b100: data_out = data_out_0;
+			3'b101: data_out = data_out_1;
+			3'b110: data_out = data_out_2;
+			3'b111: data_out = data_out_3;
 			default: data_out = 8'b0;
-		endcase // out_pointer[15:14]
-	end // always@(*)
+		endcase
+	end
 
 	/* Pointer increment logic */
 	initial begin
@@ -49,10 +50,22 @@ module sample_fifo(
 		end
 		else if(en) begin 
 			if(rnw) rd_pointer <= rd_pointer + 1;
-			else wr_pointer <= wr_pointer + 1;
+			else begin 
+				if(hold_window) rd_pointer <= rd_pointer + 1;
+				wr_pointer <= wr_pointer + 1;
+            end
 		end else begin
 			rd_pointer <= rd_pointer;
 			wr_pointer <= wr_pointer;
+		end
+	end
+
+	/* Valid Data Logic */
+	always_ff @(posedge clk or negedge reset_n) begin : proc_data_valid
+		if(~reset_n) begin
+			data_valid <= 0;
+		end else begin
+			data_valid <= (~empty & rnw & en);
 		end
 	end
 
