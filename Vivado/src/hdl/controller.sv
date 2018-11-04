@@ -85,12 +85,36 @@ CMD_RECIEVED: begin
         send_id = 1'b1; 
         NS = META_WAIT;
     end
-    8'H04: begin//Query Metadata
+    8'H04: begin //Query Metadata
         begin_meta_transmit = 1'b1;
         data_meta_mux = 1'b0;        
         send_id = 1'b0; 
         NS = META_WAIT;
     end
+    8'H05: begin // Finish Now
+
+    end // 
+    8'H07: begin //0x07 - Poll/Query Analyzer State
+
+    end
+    8'H08: begin //0x08 - Return Capture Data
+
+    end 
+    8'H80: begin // Set Sample Rate
+
+    end
+    8'H81: begin // Set Read Count & Delay Count
+
+    end
+    8'HC0: begin // Set Basic Trigger Mask
+
+	end // 
+	8'HC1: begin // Set Basic Trigger Value
+
+	end
+	8'H01: begin // Arm Basic Trigger
+
+	end
     default: NS = IDLE;
     endcase
 end
