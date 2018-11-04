@@ -33,8 +33,7 @@ module sample_fifo_tb(
 	end
 
 	initial forever begin
-		@(posedge CLK)
-		#1;
+		@(posedge CLK);
 		if (full != fifo_is_full()) begin
 			$sformat(	format_s,
 						"Fifo full flag incorrect, Expected: %1b Received: %1b Queue size: %5d",
@@ -44,8 +43,7 @@ module sample_fifo_tb(
 	end
 
 	initial forever begin
-		@(posedge CLK)
-		#1;
+		@(posedge CLK);
 		if (empty != fifo_is_empty()) begin
 			$sformat(	format_s,
 						"Fifo empty flag incorrect, Expected: %1b Received: %1b Queue size: %5d",
@@ -55,13 +53,15 @@ module sample_fifo_tb(
 	end
 
 	initial forever begin
-		@(posedge CLK)
+		@(posedge CLK);
+		
 		if (rnw) begin
+		    #4;
 			if(data_out != expected_data_q[0])begin
-				$sformat(format_s,"Incorrect data, Expected: %8b Received: %8b", expected_data_q[0],  data_out );
+				$sformat(format_s,"Incorrect data, Expected: %8d Received: %8d", expected_data_q[0],  data_out );
 				report_error(format_s);
 			end else begin
-				$sformat(format_s,"Correct value received on read, Expected: %8b Received: %8b Queue size: %5d", 
+				$sformat(format_s,"Correct value received on read, Expected: %8d Received: %8d Queue size: %5d", 
 					expected_data_q[0],  data_out, expected_data_q.size()  );
 				report_info(format_s);
 			end
@@ -108,7 +108,7 @@ module sample_fifo_tb(
 	endtask : reset_dut
 
 	task write();
-		$sformat(format_s,"Writing value to FIFO, Data_written: %8b Queue size: %5d", 
+		$sformat(format_s,"Writing value to FIFO, Data_written: %8d Queue size: %5d", 
 			data_in_tb, expected_data_q.size()  );
 		report_info(format_s);
 		expected_data_q.push_back(data_in_tb);
@@ -131,11 +131,11 @@ module sample_fifo_tb(
 	endtask : read
 
 	function bit fifo_is_full ();
-		return expected_data_q.size() >= FIFO_SIZE;
+		return (expected_data_q.size() >= FIFO_SIZE);
 	endfunction : fifo_is_full
 
 	function bit fifo_is_empty ();
-		return expected_data_q.size() == 0;
+		return (expected_data_q.size() == 0);
 	endfunction : fifo_is_empty
 
 	function void report_error (input string error_message);

@@ -43,7 +43,6 @@ module sample_fifo(
 		rd_pointer = 16'b0;
 	end
 	always@(posedge clk or negedge reset_n) begin 
-		#1;
 		if (!reset_n | clear)begin 
 			wr_pointer <= 0;
 			rd_pointer <= 0;
