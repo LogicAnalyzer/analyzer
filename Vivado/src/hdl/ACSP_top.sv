@@ -24,11 +24,21 @@ module ACSP_top(
     input system_clock, ext_reset,
     input [SAMPLE_WIDTH-1:0] dataToSample,
     input rx,
-    output tx
+    output tx,
     //Testing LEDS
 //    output [7:0] LEDSEL, LEDOUT,
-//    output [3:0] LED
+    output [15:0] LED,
+    output [4:0] indata
     );
+    
+    assign LED [7:0] = uart.data_out;
+    assign LED [15:8] = uart.data_out_f;
+    assign indata[0] = uart.trans_latch;
+    assign indata[1]= uart.trans_en;
+    assign indata[2]= uart.trans_busy;
+    assign indata[3]= uart.baud_clock;
+    assign indata[4]= uart.input_clk;
+    
     
 logic [SAMPLE_WIDTH-1:0] fallPattern, risePattern, dataSyncToSampler, dataSamplerToFIFO;
 logic [23:0] divider;

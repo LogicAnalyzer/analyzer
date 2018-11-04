@@ -110,6 +110,7 @@ case(current_state)
     end
     BUSY_TRANS: begin
         meta_busy = 1'b1;
+        tran_data = 1'b0;
         if (!tx_busy) begin
             next_state = (data_addr == METADATA_LEN) ? IDLE: TRANS;
         end else begin
@@ -124,6 +125,7 @@ case(current_state)
     end
     BUSY_TRANS_ID: begin
         meta_busy = 1'b1;
+        tran_data = 1'b0;
         if (!tx_busy) begin
             next_state = (id_data_addr == 4) ? IDLE: TRANS_ID;
         end else begin

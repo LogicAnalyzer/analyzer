@@ -72,6 +72,6 @@ module UART_com #(parameter INPUT_CLK_KHZ = 100_000, BAUD_RATE =9600)(
     );
 
 	UART_transmitter UART_transmitter_i(
-     .baud_clock(baud_clock), .reset(reset), .trans_en(trans_latch), .data_out(data_out), .Tx(Tx), .tx_busy(trans_busy)
+     .baud_clock(baud_clock), .reset(reset), .trans_en(trans_latch), .data_out(data_out_f), .Tx(Tx), .tx_busy(trans_busy)
     );
 endmodule
