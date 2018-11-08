@@ -31,17 +31,20 @@ module command_decoder(
 typedef enum {IDLE, IDLE_f, BYTE0, BYTE0_f, BYTE1, BYTE1_f, 
     BYTE2, BYTE2_f, BYTE3, BYTE3_f, RECIEVED_f, RECIEVED} decoder_states;
 
-decoder_states CS, NS;    
+decoder_states CS, NS; 
+logic [7:0] current_opcode;
+logic [31:0] current_command;   
     
-always_ff @(posedge clock or negedge reset) begin : proc_
+always_ff @(posedge clock or posedge reset) begin : proc_
         CS <= (reset) ? IDLE : NS;
     end
     
 always_comb begin
     case (CS)
-        IDLE: begin             
+        IDLE: begin 
+            if(reset) opcode = 8'hFF;            
             if(byte_in_ready) begin
-               opcode = byte_in;
+               current_opcode = byte_in;
                NS = IDLE_f;
             end else begin
                NS = IDLE;
@@ -57,7 +60,7 @@ always_comb begin
         end
         BYTE0: begin
             if(byte_in_ready) begin
-                command[31:24] = byte_in;
+                current_command[31:24] = byte_in;
                 NS = BYTE0_f; 
              end else begin
                 NS = BYTE0;
@@ -72,7 +75,7 @@ always_comb begin
         end
         BYTE1: begin
             if(byte_in_ready) begin
-                command[23:16] = byte_in;
+                current_command[23:16] = byte_in;
                 NS = BYTE1_f; 
             end else begin
                 NS = BYTE1;
@@ -87,7 +90,7 @@ always_comb begin
         end
         BYTE2: begin
            if(byte_in_ready) begin
-                 command[15:8] = byte_in;
+                 current_command[15:8] = byte_in;
                  NS = BYTE2_f; 
             end else begin
                  NS = BYTE2;
@@ -102,7 +105,7 @@ always_comb begin
         end
         BYTE3: begin
            if(byte_in_ready) begin
-              command[7:0] = byte_in;
+              current_command[7:0] = byte_in;
               NS = BYTE3_f; 
          end else begin
               NS = BYTE3;
@@ -117,6 +120,8 @@ always_comb begin
         end
         RECIEVED: begin
             cmd_recieved = 1'b1;
+            opcode = current_opcode;
+            command = current_command;
             NS = IDLE;
         end
         default: begin
