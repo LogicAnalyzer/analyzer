@@ -131,5 +131,4 @@ module ACSP_top(
     //    assign LED[1] = reset_n;
     //    assign LED[2] = uart.UART_receiver_i.reset_n;
     //    assign LED[3] = uart.UART_transmitter_i.reset_n;
-
 endmodule
