@@ -23,15 +23,19 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 module trigger_basic #(parameter SAMPLE_WIDTH = 8) (
-    input clock,    
+    input clock,
+    input reset,    
     input valid,
-    input arm,                      
+    input arm,
+    input load_trigs,                      
     input [SAMPLE_WIDTH-1:0] dataIn,
     input [SAMPLE_WIDTH-1:0] trigRising,
     input [SAMPLE_WIDTH-1:0] trigFalling,
     output reg run    
     );
 
+reg [SAMPLE_WIDTH-1:0] trigRisingReg,
+reg [SAMPLE_WIDTH-1:0] trigFallingReg,
 reg done;
 wire x;
 wire [SAMPLE_WIDTH-1:0] single_out;
@@ -42,14 +46,24 @@ generate
             single_trigger current_trigger(
                 .clock(clock),
                 .valid(valid),
-                .trig_sel_rise(trigRising[i]),
-                .trig_sel_fall(trigFalling[i]),
+                .trig_sel_rise(trigRisingReg[i]),
+                .trig_sel_fall(trigFallingReg[i]),
                 .sample(dataIn[i]),
                 .arm(arm),
                 .q(single_out[i])
             );
         end
     endgenerate
+
+    always@(posedge load_trigs or posedge reset)begin
+        if (reset) begin
+            trigRisingReg <= 0;
+            trigFallingReg <= 0;
+        end else
+            trigRisingReg <= trigRising;
+            trigFallingReg <= trigFalling;
+        end
+    end
     
     always@(posedge arm)  begin
         done <= 0;
