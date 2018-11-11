@@ -1,27 +1,7 @@
 `timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
-// Create Date: 08/09/2018 06:18:47 PM
-// Design Name: 
-// Module Name: UART_transmitter
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-// 
-//////////////////////////////////////////////////////////////////////////////////
-
 
 module UART_receiver(
-    input baud_clock, reset, Rx,
+    input baud_clock, reset_n, Rx,
     output logic[7:0]data_received,
     output logic     data_rdy
     );
@@ -40,8 +20,8 @@ module UART_receiver(
     end
 
     /*Control Data Path*/
-    always_ff@( posedge baud_clock or negedge reset) begin
-        if(~reset) begin
+    always_ff@( posedge baud_clock or negedge reset_n) begin
+        if(!reset_n) begin
             bit_counter <= 0;
             data_received_d <= 0;
         end else begin
@@ -56,8 +36,8 @@ module UART_receiver(
     end
 
     /*Control State Logic*/
-    always_ff @(posedge baud_clock or negedge reset) begin
-        if(~reset) begin
+    always_ff @(posedge baud_clock or negedge reset_n) begin
+        if(!reset_n) begin
             current_state <= IDLE;
         end else begin
             current_state <= next_state;
@@ -68,7 +48,7 @@ module UART_receiver(
     always_comb begin
         case (current_state)
             IDLE: begin
-                if(reset & !Rx)begin
+                if(reset_n & !Rx)begin
                     shift = 1'b0;
                     data_rdy =1'b0;
                     next_state = TRANS;

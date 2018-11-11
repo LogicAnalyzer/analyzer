@@ -1,27 +1,7 @@
 `timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
-// Create Date: 10/27/2018 11:48:36 AM
-// Design Name: 
-// Module Name: command_decoder
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-// 
-//////////////////////////////////////////////////////////////////////////////////
-
 
 module command_decoder(
-    input clock, reset, byte_in_ready,
+    input clock, reset_n, byte_in_ready,
     input [7:0] byte_in,
     output reg cmd_recieved,
     output reg [7:0] opcode,
@@ -44,8 +24,8 @@ parameter RECIEVED =    4'b0101;
 
 reg [3:0] CS, NS;    
     
-always@(posedge clock or posedge reset) begin
-        if(reset) begin
+always@(posedge clock or negedge reset_n) begin
+        if(!reset_n) begin
             CS <= IDLE;          
         end else begin
             CS <= NS;

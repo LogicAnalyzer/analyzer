@@ -1,31 +1,11 @@
 `timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
-// Create Date: 10/28/2018 11:14:32 AM
-// Design Name: 
-// Module Name: LED_UTIL
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-// 
-//////////////////////////////////////////////////////////////////////////////////
-
 
 module clk_gen
-(input clk100MHz, rst, output reg clk_sec, clk_5KHz);
+(input clk100MHz, reset_n, output reg clk_sec, clk_5KHz);
     integer count1, count2;
     always @ (posedge clk100MHz)
     begin
-        if (rst)
+        if (!reset_n)
         begin
             count1 = 0; clk_sec = 0;
             count2 = 0; clk_5KHz = 0;
@@ -93,13 +73,13 @@ module bcd_to_7seg
 endmodule
 
 module led_mux
-(input clk, rst, [7:0] LED0, LED1, LED2, LED3, LED4, LED5, LED6, LED7, output [7:0] LEDSEL, LEDOUT);
+(input clk, reset_n, [7:0] LED0, LED1, LED2, LED3, LED4, LED5, LED6, LED7, output [7:0] LEDSEL, LEDOUT);
     reg [2:0] index;
     reg [15:0] led_ctrl;
     assign {LEDSEL, LEDOUT} = led_ctrl;
     always@(posedge clk)
     begin
-        index <= (rst) ? 3'd0 : (index + 3'd1);
+        index <= (!reset_n) ? 3'd0 : (index + 3'd1);
     end    
     always @(index, LED0, LED1, LED2, LED3, LED4, LED5, LED6, LED7)
     begin

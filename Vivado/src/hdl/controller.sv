@@ -1,28 +1,8 @@
 `timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
-// Create Date: 10/29/2018 05:55:02 PM
-// Design Name: 
-// Module Name: controller
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-// 
-//////////////////////////////////////////////////////////////////////////////////
-
 
 module controller #(parameter SAMPLE_WIDTH = 8)(
     input logic clock,
-    input logic ext_reset,
+    input logic ext_reset_n,
 //Status Signals
     input logic [7:0] opcode, //opcode from command decoder
     input logic [31:0] command, //command from command decoder
@@ -32,7 +12,7 @@ module controller #(parameter SAMPLE_WIDTH = 8)(
     input logic meta_busy, //meta unit finished with its transmission
  
 //Control Signals
-    output logic reset,
+    output logic reset_n,
     output logic [23:0] divider,
     output logic data_meta_mux, //low for meta, high for data
     output logic arm,
@@ -47,8 +27,8 @@ logic [31:0] current_command;
 typedef enum {IDLE, META_WAIT, CMD_RECIEVED, RESETS} controller_state;
 controller_state CS, NS;
 
-always_ff@(posedge clock or posedge ext_reset) begin
-    if (ext_reset) begin
+always_ff@(posedge clock or negedge ext_reset_n) begin
+    if (!ext_reset_n) begin
         CS <= RESETS;   
     end else begin
         CS <= NS;
@@ -58,7 +38,7 @@ end
 always_comb begin
 send_id = 1'b0;
 begin_meta_transmit = 1'b0;
-reset = 1'b0;
+reset_n = 1'b1;
 case(CS)
 //IDLE: Power on state, reset state, waiting for opcode from UART
 IDLE: begin
@@ -75,9 +55,9 @@ end
 //CMD_RECIEVED: For each OP code, do something.
 CMD_RECIEVED: begin
     case(opcode)
-    8'H00: begin //Reset Signal
+    8'H00: begin //Reset_n Signal
         NS = IDLE;
-        reset = 1'b1;
+        reset_n = 1'b0;
     end
     8'H02: begin //Query ID
         begin_meta_transmit = 1'b1;
@@ -128,7 +108,7 @@ META_WAIT: begin
     end
 end
 RESETS: begin
-    reset = 1'b1;
+    reset_n = 1'b0;
     NS = IDLE;
 end
 default : NS <= IDLE;

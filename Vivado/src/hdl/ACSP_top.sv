@@ -21,7 +21,7 @@
 parameter SAMPLE_WIDTH = 8;
 
 module ACSP_top(
-    input system_clock, ext_reset,
+    input system_clock, ext_reset_n,
     input [SAMPLE_WIDTH-1:0] dataToSample,
     input rx,
     output tx,
@@ -43,7 +43,7 @@ module ACSP_top(
 logic [SAMPLE_WIDTH-1:0] fallPattern, risePattern, dataSyncToSampler, dataSamplerToFIFO;
 logic [23:0] divider;
 logic edge_capture, run, arm, dataValidToFIFO, opcode_rdy, data_rdy, tran_meta_data, send_id, dataSamplerReady;
-logic meta_busy, begin_meta_transmit, tx_busy, tran_uart, data_meta_mux, reset, load_trigs, load_counter;
+logic meta_busy, begin_meta_transmit, tx_busy, tran_uart, data_meta_mux, reset_n, load_trigs, load_counter;
 logic [7:0] opcode, recv_data, transmit_meta_byte, tran_data;
 logic [31:0] command;
    
@@ -63,7 +63,7 @@ sampler #(SAMPLE_WIDTH) sampler_module(
 );
 trigger_basic #(SAMPLE_WIDTH) trigger(
     .clock(system_clock),
-    .reset(reset),
+    .reset_n(reset_n),
     .load_trigs(load_trigs),
     .valid(dataValidToFIFO),
     .arm(arm),
@@ -75,7 +75,7 @@ trigger_basic #(SAMPLE_WIDTH) trigger(
 
 UART_com uart(
     .input_clk(system_clock),
-    .reset(~reset),
+    .reset_n(reset_n),
     .trans_en(tran_uart),
     .Rx(rx),
     .Tx(tx),
@@ -87,7 +87,7 @@ UART_com uart(
 
 command_decoder cmd_decode(
    .clock(system_clock),
-   .reset(reset),
+   .reset_n(reset_n),
    .byte_in(recv_data),
    .byte_in_ready(data_rdy),
    .cmd_recieved(opcode_rdy),
@@ -97,8 +97,8 @@ command_decoder cmd_decode(
   
 controller #(SAMPLE_WIDTH) control_unit(    
     .clock(system_clock),
-    .reset(reset),
-    .ext_reset(ext_reset),
+    .reset_n(reset_n),
+    .ext_reset_n(ext_reset_n),
     //Status Signals
     .opcode(opcode),
     .command(command),
@@ -116,7 +116,7 @@ controller #(SAMPLE_WIDTH) control_unit(
 
 metadata_sender metadata(
     .clock(system_clock),
-    .reset(reset),
+    .reset_n(reset_n),
     .begin_meta_transmit(begin_meta_transmit),
     .meta_busy(meta_busy),
     .send_id(send_id),

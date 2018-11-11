@@ -1,27 +1,7 @@
 `timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
-// Create Date: 08/09/2018 06:18:47 PM
-// Design Name: 
-// Module Name: UART_transmitter
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-// 
-//////////////////////////////////////////////////////////////////////////////////
-
 
 module UART_transmitter(
-    input baud_clock, reset, trans_en,
+    input baud_clock, reset_n, trans_en,
     input [7:0]     data_out,
     output logic          Tx, tx_busy
     );
@@ -33,8 +13,8 @@ module UART_transmitter(
     
     logic shift, load, clear;
     
-    always_ff@( posedge baud_clock or negedge reset) begin
-        if(!reset) begin
+    always_ff@( posedge baud_clock or negedge reset_n) begin
+        if(!reset_n) begin
             current_state <= IDLE;
             data_packet <= 10'b0;
             bit_counter <= 0;
@@ -53,7 +33,7 @@ module UART_transmitter(
     always_comb begin
         case (current_state)
             IDLE: begin
-                if(reset & trans_en)begin
+                if(reset_n & trans_en)begin
                     next_state = TRANS;
                     shift = 1'b0;
                     Tx = 1'b1;

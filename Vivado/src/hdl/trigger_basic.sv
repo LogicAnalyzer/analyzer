@@ -1,30 +1,8 @@
 `timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Engineer: John Tumath
-// 
-// Create Date: 09/13/2018 02:53:01 PM
-// Design Name: Trigger (Basic)
-// Module Name: trigger_basic
-// Project Name: AC1 Logic Analyzer
-// Description: The trigger module looks for patterns that will begin the data 
-// capture process. The trigger is setup by the controller with signals to 
-// config_data and then it is armed by envoking arm. After being armed, 
-// the module envokes the run signal when a signal is detected, alerting 
-// the controller module to begin the capture sequence. The basic trigger 
-// starts capture on any channel signal specified by the controller. 
-// A more advanced trigger would have more selection options for when to trigger.
-// 
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-// 
-//////////////////////////////////////////////////////////////////////////////////
 
 module trigger_basic #(parameter SAMPLE_WIDTH = 8) (
     input clock,
-    input reset,    
+    input reset_n,    
     input valid,
     input arm,
     input load_trigs,                      
@@ -55,8 +33,8 @@ generate
         end
     endgenerate
 
-    always@(posedge load_trigs or posedge reset)begin
-        if (reset) begin
+    always@(posedge load_trigs or negedge reset_n)begin
+        if (!reset_n) begin
             trigRisingReg <= 0;
             trigFallingReg <= 0;
         end else begin

@@ -62,7 +62,7 @@ module sample_fifo(
 
 	/* Valid Data Logic */
 	always_ff @(posedge clk or negedge reset_n) begin : proc_data_valid
-		if(~reset_n) begin
+		if(!reset_n) begin
 			data_valid <= 0;
 		end else begin
 			data_valid <= (~empty & rnw & en);

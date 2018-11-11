@@ -1,5 +1,7 @@
+`timescale 1ns / 1ps
+
 module sample_counter #(parameter CNT_BITS=8)(
-	input rst_n, clk, en_cnt, clr_cnt, wr_en, reg_sel,
+	input reset_n, clk, en_cnt, clr_cnt, wr_en, reg_sel,
 	input [CNT_BITS-1:0] reg_in,
 	output read_match, delay_match,
 	output [CNT_BITS-1:0] reg_out
@@ -9,7 +11,7 @@ module sample_counter #(parameter CNT_BITS=8)(
 	/* Register Logic*/
 	assign reg_out = reg_sel ? read_reg : delay_reg;
 	always@(posedge clk)begin
-		if(!rst_n)begin
+		if(!reset_n)begin
 			read_reg <= 0;
 			delay_reg <= 0;
 		end else begin
@@ -30,7 +32,7 @@ module sample_counter #(parameter CNT_BITS=8)(
 
 	/* Counter Logic */
 	always@(posedge clk)begin 
-		if(!rst_n)begin
+		if(!reset_n)begin
 			count <= 0;
 		end else begin 
 			if(clr_cnt) begin

@@ -21,7 +21,7 @@
 
 
 module UART_com #(parameter INPUT_CLK_KHZ = 100_000, BAUD_RATE =9600)(
-		input logic			input_clk, reset, trans_en, Rx,
+		input logic			input_clk, reset_n, trans_en, Rx,
 		input logic [7:0] 	data_out,
 		output logic		Tx, tx_busy,
 		output logic [7:0]	data_received,
@@ -39,8 +39,8 @@ module UART_com #(parameter INPUT_CLK_KHZ = 100_000, BAUD_RATE =9600)(
     assign tx_busy = trans_latch | trans_busy;
 
     /*Create Baud Clock*/
-    always_ff@( posedge input_clk or negedge reset)begin
-        if(~reset)begin
+    always_ff@( posedge input_clk or negedge reset_n)begin
+        if(!reset_n)begin
             baud_counter<= 14'b0;
             baud_clock <= 1'b0;
         end else begin
@@ -59,8 +59,8 @@ module UART_com #(parameter INPUT_CLK_KHZ = 100_000, BAUD_RATE =9600)(
     	else if (trans_en) trans_latch <=1;
     end
 
-    always_ff @(posedge trans_latch or negedge reset) begin : proc_data_out_f
-    	if(~reset) begin
+    always_ff @(posedge trans_latch or negedge reset_n) begin : proc_data_out_f
+    	if(!reset_n) begin
     		data_out_f <= 0;
     	end else begin
     		data_out_f <= data_out;
@@ -68,10 +68,10 @@ module UART_com #(parameter INPUT_CLK_KHZ = 100_000, BAUD_RATE =9600)(
     end
 
 	UART_receiver UART_receiver_i(
-     .baud_clock(baud_clock), .reset(reset),  .data_received(data_received), .data_rdy(data_rdy), .Rx(Rx)
+     .baud_clock(baud_clock), .reset_n(reset_n),  .data_received(data_received), .data_rdy(data_rdy), .Rx(Rx)
     );
 
 	UART_transmitter UART_transmitter_i(
-     .baud_clock(baud_clock), .reset(reset), .trans_en(trans_latch), .data_out(data_out_f), .Tx(Tx), .tx_busy(trans_busy)
+     .baud_clock(baud_clock), .reset_n(reset_n), .trans_en(trans_latch), .data_out(data_out_f), .Tx(Tx), .tx_busy(trans_busy)
     );
 endmodule

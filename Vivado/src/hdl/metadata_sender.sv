@@ -1,28 +1,8 @@
 `timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
-// Create Date: 10/29/2018 05:55:02 PM
-// Design Name: 
-// Module Name: metadata_sender
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-// 
-//////////////////////////////////////////////////////////////////////////////////
-
 
 module metadata_sender(
     input logic clock,
-    input logic reset, 
+    input logic reset_n, 
     input logic begin_meta_transmit, //Alerts the unit to transmit its metadata 
     input logic send_id, //if high, sends ID, if low, sends Query Metadata
     input logic tx_busy, //Signal from transmitter, high if busy transmitting
@@ -76,8 +56,8 @@ typedef  enum {IDLE, TRANS, BUSY_TRANS, TRANS_ID, BUSY_TRANS_ID} uart_state;
 uart_state current_state, next_state;
 
    
-always_ff @(posedge clock or posedge reset) begin
-  if (reset) begin  
+always_ff @(posedge clock or negedge reset_n) begin
+  if (!reset_n) begin  
       current_state <= IDLE;
       data_addr <= 1'b0;
       id_data_addr <= 1'b0;
