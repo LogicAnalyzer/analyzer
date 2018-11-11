@@ -7,7 +7,7 @@ module sample_counter #(parameter CNT_BITS=8)(
 	logic [CNT_BITS-1:0] read_reg, delay_reg, count;
 
 	/* Register Logic*/
-	assign reg_out = reg_sel ? read_reg : delay_reg
+	assign reg_out = reg_sel ? read_reg : delay_reg;
 	always@(posedge clk)begin
 		if(!rst_n)begin
 			read_reg <= 0;
