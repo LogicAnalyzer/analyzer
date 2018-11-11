@@ -93,4 +93,5 @@
 ########
 #Scripts
 #######
-!scripts/
+!scripts/*.py
+!scripts/*.sh
