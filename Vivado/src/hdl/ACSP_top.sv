@@ -130,9 +130,9 @@ metadata_sender metadata(
 assign tran_data = (data_meta_mux) ? dataSamplerToFIFO : transmit_meta_byte;
 assign tran_uart = (data_meta_mux) ? dataSamplerReady : tran_meta_data;
 
-    assign LED[0] = ext_reset_n;
-    assign LED[1] = reset_n;
-    assign LED[2] = uart.UART_receiver_i.reset_n;
-    assign LED[3] = uart.UART_transmitter_i.reset_n;
+//    assign LED[0] = ext_reset_n;
+//    assign LED[1] = reset_n;
+//    assign LED[2] = uart.UART_receiver_i.reset_n;
+//    assign LED[3] = uart.UART_transmitter_i.reset_n;
 
 endmodule

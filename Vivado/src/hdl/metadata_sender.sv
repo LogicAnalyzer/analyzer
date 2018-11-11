@@ -27,11 +27,9 @@ initial
 begin : meta
    integer i;
    i = 1'b0;
-  `ADDLONG(8'h01, "B", "i", "g", " "); // Device name string...
-  `ADDLONG("D", "i", "c", "k", " ");
-  `ADDLONG("S", "w", "i", "n", "g");
-  `ADDLONG("i", "n", "'", "v", "1");
-  `ADDLONG( ".", "0", "0", " ", 0);
+  `ADDLONG(8'h01, "A", "C", "S", "P"); // Device name string...
+  `ADDLONG(" ", "v", "1", ".", "0");
+  `ADDBYTE(0);
 
   `ADDLONG(8'h02, "1", ".", "0", "0"); // FPGA firmware version string
   `ADDBYTE(0);
