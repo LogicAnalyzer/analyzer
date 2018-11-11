@@ -31,8 +31,9 @@ module ACSP_top(
     output [4:0] indata
     );
     
-    assign LED [7:0] = uart.data_out;
-    assign LED [15:8] = uart.data_out_f;
+
+    //assign LED [7:0] = uart.data_out;
+    //assign LED [15:8] = uart.data_out_f;
     assign indata[0] = uart.trans_latch;
     assign indata[1]= uart.trans_en;
     assign indata[2]= uart.trans_busy;
@@ -129,6 +130,9 @@ metadata_sender metadata(
 assign tran_data = (data_meta_mux) ? dataSamplerToFIFO : transmit_meta_byte;
 assign tran_uart = (data_meta_mux) ? dataSamplerReady : tran_meta_data;
 
-
+    assign LED[0] = ext_reset_n;
+    assign LED[1] = reset_n;
+    assign LED[2] = uart.UART_receiver_i.reset_n;
+    assign LED[3] = uart.UART_transmitter_i.reset_n;
 
 endmodule
