@@ -21,7 +21,7 @@
 
 module sampler #(parameter SAMPLE_WIDTH = 8)(
     input clock,
-    input ld_counter,                         
+    input load_counter,                         
     input [SAMPLE_WIDTH-1:0] dataIn,
     input [23:0] divider,
     output reg [SAMPLE_WIDTH-1:0] dataOut,
@@ -30,7 +30,7 @@ module sampler #(parameter SAMPLE_WIDTH = 8)(
     
     reg [23:0] counter;
     
-always@ (posedge ld_counter) begin
+always@ (posedge load_counter) begin
     counter <= divider;
 end
 always@(posedge clock) begin

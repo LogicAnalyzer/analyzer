@@ -34,8 +34,8 @@ module trigger_basic #(parameter SAMPLE_WIDTH = 8) (
     output reg run    
     );
 
-reg [SAMPLE_WIDTH-1:0] trigRisingReg,
-reg [SAMPLE_WIDTH-1:0] trigFallingReg,
+reg [SAMPLE_WIDTH-1:0] trigRisingReg;
+reg [SAMPLE_WIDTH-1:0] trigFallingReg;
 reg done;
 wire x;
 wire [SAMPLE_WIDTH-1:0] single_out;
@@ -59,7 +59,7 @@ generate
         if (reset) begin
             trigRisingReg <= 0;
             trigFallingReg <= 0;
-        end else
+        end else begin
             trigRisingReg <= trigRising;
             trigFallingReg <= trigFalling;
         end

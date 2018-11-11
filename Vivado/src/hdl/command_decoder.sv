@@ -41,8 +41,7 @@ always_ff @(posedge clock or posedge reset) begin : proc_
     
 always_comb begin
     case (CS)
-        IDLE: begin 
-            if(reset) opcode = 8'hFF;            
+        IDLE: begin            
             if(byte_in_ready) begin
                current_opcode = byte_in;
                NS = IDLE_f;

@@ -43,11 +43,9 @@ module ACSP_top(
 logic [SAMPLE_WIDTH-1:0] fallPattern, risePattern, dataSyncToSampler, dataSamplerToFIFO;
 logic [23:0] divider;
 logic edge_capture, run, arm, dataValidToFIFO, opcode_rdy, data_rdy, tran_meta_data, send_id, dataSamplerReady;
-logic meta_busy, begin_meta_transmit, tx_busy, tran_uart, data_meta_mux, notreset, reset;
+logic meta_busy, begin_meta_transmit, tx_busy, tran_uart, data_meta_mux, reset, load_trigs, load_counter;
 logic [7:0] opcode, recv_data, transmit_meta_byte, tran_data;
 logic [31:0] command;
-
-assign notreset = ~reset;
    
 input_sync #(SAMPLE_WIDTH) sync_module(
     .clock(system_clock),
@@ -57,25 +55,27 @@ input_sync #(SAMPLE_WIDTH) sync_module(
 );
 sampler #(SAMPLE_WIDTH) sampler_module(
     .clock(system_clock),
-    .reset(arm),
+    .load_counter(load_counter),
     .dataIn(dataSyncToSampler),
-    .divider(divider),
+    .divider(command[23:0]),
     .dataOut(dataSamplerToFIFO),
     .validOut(dataValidToFIFO)
 );
 trigger_basic #(SAMPLE_WIDTH) trigger(
     .clock(system_clock),
+    .reset(reset),
+    .load_trigs(load_trigs),
     .valid(dataValidToFIFO),
     .arm(arm),
     .dataIn(dataSamplerToFIFO),
-    .trigRising(risePattern),
-    .trigFalling(fallPattern),
+    .trigRising(command[7:0]),
+    .trigFalling(command[15:8]),
     .run(run)
 );
 
 UART_com uart(
     .input_clk(system_clock),
-    .reset(notreset),
+    .reset(~reset),
     .trans_en(tran_uart),
     .Rx(rx),
     .Tx(tx),
@@ -111,9 +111,7 @@ controller #(SAMPLE_WIDTH) control_unit(
     .data_meta_mux(data_meta_mux),
     .arm(arm),
     .send_id(send_id),
-    .begin_meta_transmit(begin_meta_transmit),
-    .risePattern(risePattern),
-    .fallPattern(fallPattern)
+    .begin_meta_transmit(begin_meta_transmit)
 );
 
 metadata_sender metadata(
