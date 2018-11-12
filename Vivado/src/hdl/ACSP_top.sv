@@ -23,7 +23,7 @@ module ACSP_top(
     assign indata[4]= uart.input_clk;
     
     
-    logic   [SAMPLE_WIDTH-1:0] fallPattern, risePattern, dataSyncToSampler, dataSamplerToFIFO;
+    logic   [SAMPLE_WIDTH-1:0] fallPattern, risePattern, dataSyncToSampler, dataSamplerToFIFO, fifoToUartData;
     logic   [23:0]  divider;
     logic   [7:0]   opcode, recv_data, transmit_meta_byte, tran_data;
     logic   [31:0]  command;
@@ -32,6 +32,8 @@ module ACSP_top(
                     dataSamplerReady, meta_busy, begin_meta_transmit,
                     tx_busy, tran_uart, data_meta_mux, reset_n, 
                     load_trigs, load_counter;
+    logic           en, rnw, clear, hold_window, full, empty, fifoToUartReady,
+                    en_cnt, clr_cnt, read_match, delay_match, wr_en, reg_sel;
 
     input_sync #(SAMPLE_WIDTH) sync_module(
         .clock(system_clock),
@@ -60,6 +62,31 @@ module ACSP_top(
         .trigFalling(command[15:8]),
         .run(run)
     );
+
+    sample_fifo sample_fifo(
+        .clk(system_clock), 
+        .en(en),
+        .rnw(rnw),
+        .clear(clear),
+        .hold_window(hold_window), 
+        .reset_n(reset_n),
+        .data_in(dataSamplerToFIFO),
+        .full(full), 
+        .empty(empty), 
+        .data_valid(fifoToUartReady),
+        .data_out(fifoToUartData)
+    );
+
+    sample_counter sample_counter(
+        .clk(system_clock),
+        .reset_n(reset_n),
+        .en_cnt(en_cnt),
+        .clr_cnt(clr_cnt),
+        .wr_en(wr_en), //Load the read/delay values
+        .read_match (read_match),
+        .delay_match(delay_match),
+        .readdelay(command)
+    );  
 
     UART_com uart(
         .input_clk(system_clock),
@@ -124,8 +151,8 @@ module ACSP_top(
     );
 
     //Transmit muxes
-    assign tran_data = (data_meta_mux) ? dataSamplerToFIFO : transmit_meta_byte;
-    assign tran_uart = (data_meta_mux) ? dataSamplerReady : tran_meta_data;
+    assign tran_data = (data_meta_mux) ? fifoToUartData : transmit_meta_byte;
+    assign tran_uart = (data_meta_mux) ? fifoToUartReady : tran_meta_data;
 
     //    assign LED[0] = ext_reset_n;
     //    assign LED[1] = reset_n;
