@@ -108,8 +108,8 @@ set_property -dict { PACKAGE_PIN C12   IOSTANDARD LVCMOS33 } [get_ports { ext_re
 
 ##Pmod Header JA
 
-#set_property -dict { PACKAGE_PIN C17   IOSTANDARD LVCMOS33 } [get_ports { rx_test }]; #IO_L20N_T3_A19_15 Sch=indata[1]
-#set_property -dict { PACKAGE_PIN D18   IOSTANDARD LVCMOS33 } [get_ports { checkcode_test }]; #IO_L21N_T3_DQS_A18_15 Sch=indata[2]
+set_property -dict { PACKAGE_PIN C17   IOSTANDARD LVCMOS33 } [get_ports { tx }]; #IO_L20N_T3_A19_15 Sch=indata[1]
+set_property -dict { PACKAGE_PIN D18   IOSTANDARD LVCMOS33 } [get_ports { rx }]; #IO_L21N_T3_DQS_A18_15 Sch=indata[2]
 #set_property -dict { PACKAGE_PIN G17   IOSTANDARD LVCMOS33 } [get_ports { data_rdy_test }]; #IO_L18N_T2_A23_15 Sch=indata[4]
 #set_property -dict { PACKAGE_PIN D17   IOSTANDARD LVCMOS33 } [get_ports { indata[4] }]; #IO_L16N_T2_A27_15 Sch=indata[7]
 #set_property -dict { PACKAGE_PIN E17   IOSTANDARD LVCMOS33 } [get_ports { indata[5] }]; #IO_L16P_T2_A28_15 Sch=indata[8]
