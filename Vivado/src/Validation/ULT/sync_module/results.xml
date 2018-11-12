@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<testsuites name="results">
+  <testsuite name="all" package="all" tests="0">
+    <property name="random_seed" value="1538329172" />
+    <testcase classname="input_sync_tb" name="adder_basic_test" ratio_time="535059.0868027211" sim_time_ns="750.1" time="0.0014019012451171875" />
+  </testsuite>
+</testsuites>
