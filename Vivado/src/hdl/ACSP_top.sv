@@ -84,8 +84,8 @@ module ACSP_top(
         .clr_cnt(clr_cnt),
         .wr_en(wr_en), //Load the read/delay values
         .read_match (read_match),
-        .delay_match(delay_match),
-        .readdelay(command)
+        .delay_match(delay_match)
+//        .readdelay(command)
     );  
 
     UART_com uart(

@@ -1,70 +1,134 @@
 `timescale 1ns / 1ps
-
-module UART_transmitter(
-    input baud_clock, reset_n, trans_en,
-    input [7:0]     data_out,
-    output logic          Tx, tx_busy
-    );
-    typedef enum {IDLE, TRANS} uart_state;
-    uart_state current_state, next_state;
-    
-    logic [3:0] bit_counter;
-    logic [9:0] data_packet;
-    
-    logic shift, load, clear;
-    
-    always_ff@( posedge baud_clock or negedge reset_n) begin
-        if(!reset_n) begin
-            current_state <= IDLE;
-            data_packet <= 10'b0;
-            bit_counter <= 0;
-        end else begin
-            current_state <= next_state;
-            if (shift)begin
-                data_packet <= data_packet >> 1;
-                bit_counter <= bit_counter - 1;
-            end else begin
-                bit_counter <= 4'd10;
-                data_packet <= {1'b1,data_out,1'b0};
-            end
-        end
+module uart_tx 
+  #(parameter CLKS_PER_BIT)
+  (
+   input       i_Clock,
+   input       i_Tx_DV,
+   input [7:0] i_Tx_Byte, 
+   output      o_Tx_Active,
+   output reg  o_Tx_Serial,
+   output      o_Tx_Done
+   );
+  
+  parameter s_IDLE         = 3'b000;
+  parameter s_TX_START_BIT = 3'b001;
+  parameter s_TX_DATA_BITS = 3'b010;
+  parameter s_TX_STOP_BIT  = 3'b011;
+  parameter s_CLEANUP      = 3'b100;
+   
+  reg [2:0]    r_SM_Main     = 0;
+  reg [7:0]    r_Clock_Count = 0;
+  reg [2:0]    r_Bit_Index   = 0;
+  reg [7:0]    r_Tx_Data     = 0;
+  reg          r_Tx_Done     = 0;
+  reg          r_Tx_Active   = 0;
+     
+  always @(posedge i_Clock)
+    begin
+       
+      case (r_SM_Main)
+        s_IDLE :
+          begin
+            o_Tx_Serial   <= 1'b1;         // Drive Line High for Idle
+            r_Tx_Done     <= 1'b0;
+            r_Clock_Count <= 0;
+            r_Bit_Index   <= 0;
+             
+            if (i_Tx_DV == 1'b1)
+              begin
+                r_Tx_Active <= 1'b1;
+                r_Tx_Data   <= i_Tx_Byte;
+                r_SM_Main   <= s_TX_START_BIT;
+              end
+            else
+              r_SM_Main <= s_IDLE;
+          end // case: s_IDLE
+         
+         
+        // Send out Start Bit. Start bit = 0
+        s_TX_START_BIT :
+          begin
+            o_Tx_Serial <= 1'b0;
+             
+            // Wait CLKS_PER_BIT-1 clock cycles for start bit to finish
+            if (r_Clock_Count < CLKS_PER_BIT-1)
+              begin
+                r_Clock_Count <= r_Clock_Count + 1;
+                r_SM_Main     <= s_TX_START_BIT;
+              end
+            else
+              begin
+                r_Clock_Count <= 0;
+                r_SM_Main     <= s_TX_DATA_BITS;
+              end
+          end // case: s_TX_START_BIT
+         
+         
+        // Wait CLKS_PER_BIT-1 clock cycles for data bits to finish         
+        s_TX_DATA_BITS :
+          begin
+            o_Tx_Serial <= r_Tx_Data[r_Bit_Index];
+             
+            if (r_Clock_Count < CLKS_PER_BIT-1)
+              begin
+                r_Clock_Count <= r_Clock_Count + 1;
+                r_SM_Main     <= s_TX_DATA_BITS;
+              end
+            else
+              begin
+                r_Clock_Count <= 0;
+                 
+                // Check if we have sent out all bits
+                if (r_Bit_Index < 7)
+                  begin
+                    r_Bit_Index <= r_Bit_Index + 1;
+                    r_SM_Main   <= s_TX_DATA_BITS;
+                  end
+                else
+                  begin
+                    r_Bit_Index <= 0;
+                    r_SM_Main   <= s_TX_STOP_BIT;
+                  end
+              end
+          end // case: s_TX_DATA_BITS
+         
+         
+        // Send out Stop bit.  Stop bit = 1
+        s_TX_STOP_BIT :
+          begin
+            o_Tx_Serial <= 1'b1;
+             
+            // Wait CLKS_PER_BIT-1 clock cycles for Stop bit to finish
+            if (r_Clock_Count < CLKS_PER_BIT-1)
+              begin
+                r_Clock_Count <= r_Clock_Count + 1;
+                r_SM_Main     <= s_TX_STOP_BIT;
+              end
+            else
+              begin
+                r_Tx_Done     <= 1'b1;
+                r_Clock_Count <= 0;
+                r_SM_Main     <= s_CLEANUP;
+                r_Tx_Active   <= 1'b0;
+              end
+          end // case: s_Tx_STOP_BIT
+         
+         
+        // Stay here 1 clock
+        s_CLEANUP :
+          begin
+            r_Tx_Done <= 1'b1;
+            r_SM_Main <= s_IDLE;
+          end
+         
+         
+        default :
+          r_SM_Main <= s_IDLE;
+         
+      endcase
     end
-    
-    always_comb begin
-        case (current_state)
-            IDLE: begin
-                if(reset_n & trans_en)begin
-                    next_state = TRANS;
-                    shift = 1'b0;
-                    Tx = 1'b1;
-                    tx_busy = 1'b0;
-                end else begin
-                    next_state = IDLE;
-                    shift = 1'b0;
-                    Tx = 1'b1;
-                    tx_busy = 1'b0;
-                end
-            end
-            TRANS: begin
-                if(bit_counter > 4'b0)begin
-                    shift = 1'b1;
-                    Tx = data_packet[0];
-                    next_state = TRANS;
-                    tx_busy = 1'b1;
-                end else begin
-                    next_state = IDLE;
-                    shift = 1'b0;
-                    Tx = 1'b1;
-                    tx_busy = 1'b1;
-                end
-            end
-            default: begin
-                next_state = IDLE;
-                Tx = 1'b1;
-                shift = 1'b0;
-                tx_busy = 1'b1;
-            end
-        endcase
-    end
-    
+ 
+  assign o_Tx_Active = r_Tx_Active;
+  assign o_Tx_Done   = r_Tx_Done;
+   
 endmodule
