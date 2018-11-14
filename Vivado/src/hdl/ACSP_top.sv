@@ -84,7 +84,9 @@ module ACSP_top(
         .clr_cnt(clr_cnt),
         .wr_en(wr_en), //Load the read/delay values
         .read_match (read_match),
-        .delay_match(delay_match)
+        .delay_match(delay_match),
+        .read_reg_in(command[31:16]),
+        .delay_reg_in(command[15:0])
 //        .readdelay(command)
     );  
 
@@ -120,6 +122,10 @@ module ACSP_top(
         .run(run), 
         .transmit_busy(tx_busy), 
         .meta_busy(meta_busy), 
+        .delay_match(delay_match),
+        .read_match(read_match),
+        .validOut           (dataValidToFIFO),
+        .empty              (empty),
     //Control Signals
         .load_counter(load_counter),
         .data_meta_mux(data_meta_mux),
@@ -137,6 +143,7 @@ module ACSP_top(
         .wr_en(wr_en),
         .reg_sel(reg_sel),
         .reset_n(reset_n)
+
     );
 
     metadata_sender metadata(
