@@ -66,7 +66,7 @@ task send_data(input [7:0] data);
 endtask : send_data
 
 task arm();
-    send_data(8'H00);
+    send_data(8'H01);
     send_data(8'H00);
     send_data(8'H00);
     send_data(8'H00);
