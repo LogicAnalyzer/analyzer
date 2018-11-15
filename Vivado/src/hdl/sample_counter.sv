@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 
-module sample_counter #(parameter CNT_BITS=8)(
+module sample_counter #(parameter CNT_BITS=16)(
 	input reset_n, clk, en_cnt, clr_cnt, wr_en,
 	input [CNT_BITS-1:0] read_reg_in, delay_reg_in,
 	output read_match, delay_match,

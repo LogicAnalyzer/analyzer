@@ -89,7 +89,6 @@ assign {load_counter,data_meta_mux,begin_meta_transmit,
     localparam DEFAULT_ = 16'b0000_0000_0000_0001;
 //!!!VERY IMPORTANT If you add signals to this list you MUST expand "control_signals" vector size and LOCALPARAM
 
-
 always_ff@(posedge clock or negedge ext_reset_n) begin
     if (!ext_reset_n) begin
         CS <= RESETS;   
