@@ -23,6 +23,7 @@
 module top_level_tb();
 
 logic baud_clock, input_clk, reset, Rx, Tx, ext_reset;
+logic [7:0] sample_data;
 
 localparam real BAUD_RATE = 9600;
 localparam real BAUD_RATE_KHZ = BAUD_RATE / 1000;
@@ -64,10 +65,45 @@ task send_data(input [7:0] data);
     
 endtask : send_data
 
+task arm();
+    send_data(8'H00);
+    send_data(8'H00);
+    send_data(8'H00);
+    send_data(8'H00);
+    send_data(8'H00);
+endtask: arm
+
+task send_reset();
+    send_data(8'H00);
+    send_data(8'H00);
+    send_data(8'H00);
+    send_data(8'H00);
+    send_data(8'H00);
+endtask : send_reset
+
+task set_sample_rate(input [23:0] sample_rate);
+    send_data(8'H80);
+    send_data(8'H00);
+    send_data(sample_rate[23:16]);
+    send_data(sample_rate[15:8]);
+    send_data(sample_rate[7:0]);
+endtask : set_sample_rate
+
+task set_read_delay(input [15:0,);
+
+endtask : set_read_delay
+
+task set_trigger();
+
+endtask : set_trigger
+
+
+
+
 ACSP_top DUT(
     .system_clock(input_clk), 
     .ext_reset(ext_reset),
-    .dataToSample(8'hFF),
+    .dataToSample(sample_data),
     .rx(Rx),
     .tx(Tx)
     );
