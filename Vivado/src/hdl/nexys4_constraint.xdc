@@ -108,8 +108,8 @@ set_property -dict { PACKAGE_PIN C12   IOSTANDARD LVCMOS33 } [get_ports { ext_re
 
 ##Pmod Header JA
 
-#set_property -dict { PACKAGE_PIN C17   IOSTANDARD LVCMOS33 } [get_ports { rx_test }]; #IO_L20N_T3_A19_15 Sch=indata[1]
-#set_property -dict { PACKAGE_PIN D18   IOSTANDARD LVCMOS33 } [get_ports { checkcode_test }]; #IO_L21N_T3_DQS_A18_15 Sch=indata[2]
+set_property -dict { PACKAGE_PIN C17   IOSTANDARD LVCMOS33 } [get_ports { tx }]; #IO_L20N_T3_A19_15 Sch=indata[1]
+set_property -dict { PACKAGE_PIN D18   IOSTANDARD LVCMOS33 } [get_ports { rx }]; #IO_L21N_T3_DQS_A18_15 Sch=indata[2]
 #set_property -dict { PACKAGE_PIN G17   IOSTANDARD LVCMOS33 } [get_ports { data_rdy_test }]; #IO_L18N_T2_A23_15 Sch=indata[4]
 #set_property -dict { PACKAGE_PIN D17   IOSTANDARD LVCMOS33 } [get_ports { indata[4] }]; #IO_L16N_T2_A27_15 Sch=indata[7]
 #set_property -dict { PACKAGE_PIN E17   IOSTANDARD LVCMOS33 } [get_ports { indata[5] }]; #IO_L16P_T2_A28_15 Sch=indata[8]
@@ -148,9 +148,9 @@ set_property -dict { PACKAGE_PIN H1    IOSTANDARD LVCMOS33 } [get_ports { indata
 set_property -dict { PACKAGE_PIN G1    IOSTANDARD LVCMOS33 } [get_ports { indata[2] }]; #IO_L17N_T2_35 Sch=jd[3]
 set_property -dict { PACKAGE_PIN G3    IOSTANDARD LVCMOS33 } [get_ports { indata[3] }]; #IO_L20N_T3_35 Sch=jd[4]
 set_property -dict { PACKAGE_PIN H2    IOSTANDARD LVCMOS33 } [get_ports { indata[4] }]; #IO_L15P_T2_DQS_35 Sch=jd[7]
-#set_property -dict { PACKAGE_PIN G4    IOSTANDARD LVCMOS33 } [get_ports { indata[5] }]; #IO_L20P_T3_35 Sch=jd[8]
-#set_property -dict { PACKAGE_PIN G2    IOSTANDARD LVCMOS33 } [get_ports { indata[6] }]; #IO_L15N_T2_DQS_35 Sch=jd[9]
-#set_property -dict { PACKAGE_PIN F3    IOSTANDARD LVCMOS33 } [get_ports { indata[7] }]; #IO_L13N_T2_MRCC_35 Sch=jd[10]
+set_property -dict { PACKAGE_PIN G4    IOSTANDARD LVCMOS33 } [get_ports { uart_test[0] }]; #IO_L20P_T3_35 Sch=jd[8]
+set_property -dict { PACKAGE_PIN G2    IOSTANDARD LVCMOS33 } [get_ports { uart_test[1] }]; #IO_L15N_T2_DQS_35 Sch=jd[9]
+# set_property -dict { PACKAGE_PIN F3    IOSTANDARD LVCMOS33 } [get_ports { indata[7] }]; #IO_L13N_T2_MRCC_35 Sch=jd[10]
 
 
 ##Pmod Header JXADC
