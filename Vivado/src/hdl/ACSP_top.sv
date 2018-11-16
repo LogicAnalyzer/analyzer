@@ -125,7 +125,7 @@ module ACSP_top(
         .meta_busy(meta_busy), 
         .delay_match(delay_match),
         .read_match(read_match),
-        .validOut           (dataValidToFIFO),
+        .validOut           (validOut),
         .empty              (empty),
     //Control Signals
         .load_counter(load_counter),
