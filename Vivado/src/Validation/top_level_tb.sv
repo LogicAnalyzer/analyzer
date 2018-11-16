@@ -20,6 +20,31 @@ initial forever begin
     #BAUD_HALF_PERIOD_NS baud_clock <= ~baud_clock;
 end
 
+/**** DUT ****/
+ACSP_top DUT(
+    .system_clock(input_clk), 
+    .ext_reset_n(ext_reset),
+    .dataToSample(sample_data),
+    .rx(Rx),
+    .tx(Tx)
+);
+
+/*Main Test Bench*/
+initial begin
+    initialize();
+    send_reset();
+    fork
+        begin
+            query_id();
+            query_metadata();
+        end
+        get_meta();
+    join
+    $finish;
+end //initial begin
+
+
+
 function void initialize ();
     input_clk = 0;
     baud_clock =0;
@@ -45,6 +70,21 @@ task send_data(input [7:0] data);
     @(posedge baud_clock);
     
 endtask : send_data
+
+task receive_data(output [7:0] rcv_byte, output bit valid);
+    automatic integer bit_count=0;
+    valid=0;
+    @(posedge baud_clock);
+    if(Tx===0) begin //Start bit detected
+        while(bit_count<8)begin
+            @(posedge baud_clock);
+            rcv_byte[bit_count] = Tx;
+            bit_count = bit_count+1;
+        end
+        valid = 1;
+    end
+
+endtask : receive_data
 
 task arm();
     send_data(8'H01);
@@ -103,24 +143,115 @@ task query_id();
     send_data(8'H00);
 endtask : query_id
 
-ACSP_top DUT(
-    .system_clock(input_clk), 
-    .ext_reset_n(ext_reset),
-    .dataToSample(sample_data),
-    .rx(Rx),
-    .tx(Tx)
-    );
+task receive_nullend_string();
+    logic [7:0] string_buffer [0:200];
+    bit valid;
+    automatic integer current_char=0;
+    
+    do 
+        begin
+            receive_data(string_buffer[current_char],valid);
+            if(valid) current_char = current_char+1;
+        end 
+    while(string_buffer[current_char-1]!==0);
+    current_char =0;
+    $write($time, "  Received data: ");
+    do 
+        begin
+            $write("%c",string_buffer[current_char]);
+            current_char = current_char+1;
+        end 
+    while(string_buffer[current_char-1]!==0);
+    $write("\n");
+    
+endtask: receive_nullend_string
+         
+task receive_32_bit();
+    logic [7:0] recv_32b [0:3];
+    bit valid;
+    automatic integer current_char=0;
+    
+    do 
+        begin
+        receive_data(recv_32b[current_char],valid);
+        if(valid)
+            current_char = current_char+1;
+        end 
+    while(current_char < 4);
 
-initial begin
-initialize();
-ext_reset = 0;
-#5
-ext_reset = 1;
-#5
-send_reset();
-query_id();
-query_metadata();
+    $display($time, "  Received data: 0x%x%x%x%x ",recv_32b[0],recv_32b[1],recv_32b[2],recv_32b[3]);
+endtask: receive_32_bit      
 
-end //initial begin
-            
+task receive_8_bit();
+    logic [7:0] recv_8b;
+    bit valid; 
+    valid =0;
+    while(valid !==1) receive_data(recv_8b,valid);
+    $display($time, "  Received data: 0x%x ",{recv_8b});
+endtask: receive_8_bit     
+
+task get_meta();
+    logic [7:0] rcv_byte;
+    bit valid;
+    valid =0;
+    do
+        begin
+            while(valid !==1) receive_data(rcv_byte,valid);
+            case(rcv_byte)
+                8'h00:begin
+                    $display($time, "  Received data: end of metadata ");
+                end
+                8'h01:begin
+                    $display($time, "  Received 0x01, Device Name");
+                    receive_nullend_string();
+                end
+                8'h02:begin
+                    $display($time, "  Received 0x02, Version of FPGA firmware");
+                    receive_nullend_string();
+                end
+                8'h03:begin
+                    $display($time, "  Received 0x03, Ancillary Version");
+                    receive_nullend_string();
+                end
+                8'h20:begin
+                    $display($time, "  Received 0x20, Number of Probes");
+                    receive_32_bit();
+                end
+                8'h21:begin
+                    $display($time, "  Received 0x21, Sample Memory Available");
+                    receive_32_bit();
+                end
+                8'h22:begin
+                    $display($time, "  Received 0x22, Dynamic Memory Available");
+                    receive_32_bit();
+                end
+                8'h23:begin
+                    $display($time, "  Received 0x23, Max Sample Rate");
+                    receive_32_bit();
+                end
+                8'h24:begin
+                    $display($time, "  Received 0x24, Protocol version");
+                    receive_32_bit();
+                end
+                8'h25:begin
+                    $display($time, "  Received 0x25, Capability Flags");
+                    receive_32_bit();
+                end
+                8'h40:begin
+                    $display($time, "  Received 0x40, Number of probes (Short version)");
+                    receive_8_bit();
+                end
+                8'h41:begin
+                    $display($time, "  Received 0x41, Protocol version (Short Version)");
+                    receive_8_bit();
+                end
+            endcase
+            valid =0;
+        end
+    while(rcv_byte !==0);
+endtask: get_meta
+
 endmodule
+
+
+           
