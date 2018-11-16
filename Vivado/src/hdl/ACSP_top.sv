@@ -6,24 +6,9 @@ module ACSP_top(
     input system_clock, ext_reset_n,
     input [SAMPLE_WIDTH-1:0] dataToSample,
     input rx,
-    output tx,
-    //Testing LEDS
-//    output [7:0] LEDSEL, LEDOUT,
-    output [15:0] LED,
-    output [5:0] indata,
-    output [1:0] uart_test
+    output tx
     );
-    
-    assign indata[0] = uart.UART_transmitter_i.r_SM_Main[0];
-    assign indata[1] = uart.UART_transmitter_i.r_SM_Main[1];
-    assign indata[2] = uart.UART_transmitter_i.r_SM_Main[2];
-    assign indata[3] = uart.UART_receiver_i.r_SM_Main[0];
-    assign indata[4] = uart.UART_receiver_i.r_SM_Main[1];
-    assign indata[5] = uart.UART_receiver_i.r_SM_Main[2];
-    assign uart_test[0] = uart.Tx;//5
-    assign uart_test[1] = uart.Rx;//6
-    
-    
+
     logic   [SAMPLE_WIDTH-1:0] fallPattern, risePattern, dataSyncToSampler, dataSamplerToFIFO, fifoToUartData;
     logic   [23:0]  divider;
     logic   [7:0]   opcode, recv_data, transmit_meta_byte, tran_data;
@@ -88,7 +73,6 @@ module ACSP_top(
         .delay_match(delay_match),
         .read_reg_in(command[31:16]),
         .delay_reg_in(command[15:0])
-//        .readdelay(command)
     );  
 
     UART_com uart(
@@ -125,8 +109,8 @@ module ACSP_top(
         .meta_busy(meta_busy), 
         .delay_match(delay_match),
         .read_match(read_match),
-        .validOut           (validOut),
-        .empty              (empty),
+        .validOut(dataValidToFIFO),
+        .empty(empty),
     //Control Signals
         .load_counter(load_counter),
         .data_meta_mux(data_meta_mux),
@@ -162,8 +146,4 @@ module ACSP_top(
     assign tran_data = (data_meta_mux) ? fifoToUartData : transmit_meta_byte;
     assign tran_uart = (data_meta_mux) ? fifoToUartReady : tran_meta_data;
 
-    //    assign LED[0] = ext_reset_n;
-    //    assign LED[1] = reset_n;
-    //    assign LED[2] = uart.UART_receiver_i.reset_n;
-    //    assign LED[3] = uart.UART_transmitter_i.reset_n;
 endmodule
