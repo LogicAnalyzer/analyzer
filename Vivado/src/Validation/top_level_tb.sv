@@ -2,7 +2,7 @@
 
 module top_level_tb();
 
-logic baud_clock, input_clk, reset_n, Rx, Tx, ext_reset;
+logic baud_clock, input_clk, Rx, Tx, ext_reset;
 logic [7:0] sample_data;
 
 localparam real BAUD_RATE = 9600;
@@ -23,8 +23,9 @@ end
 function void initialize ();
     input_clk = 0;
     baud_clock =0;
-    reset_n = 1;
+    ext_reset = 1;
     Rx = 1;
+    sample_data = 8'hFF;
 endfunction : initialize
     
 task send_data(input [7:0] data);
@@ -112,6 +113,10 @@ ACSP_top DUT(
 
 initial begin
 initialize();
+ext_reset = 0;
+#5
+ext_reset = 1;
+#5
 send_reset();
 query_id();
 query_metadata();
