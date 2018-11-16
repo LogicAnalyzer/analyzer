@@ -10,13 +10,13 @@ module UART_com #(parameter INPUT_CLK_KHZ = 100_000, BAUD_RATE =9600)(
     );
 
     localparam real BAUD_RATE_KHZ = BAUD_RATE / 1000.0;
-    localparam integer BAUD_COUNT = (INPUT_CLK_KHZ / (BAUD_RATE_KHZ * 2) - 1);
+    localparam integer BAUD_COUNT = (INPUT_CLK_KHZ / (BAUD_RATE_KHZ) - 1);
 
-    logic [12:0] baud_counter;
-    logic baud_clock, trans_busy, trans_latch;
+//    logic [12:0] baud_counter;
+//    logic baud_clock, trans_busy, trans_latch;
     logic [7:0]	data_out_f;
 
-    // assign tx_busy = trans_latch | trans_busy;
+//     assign tx_busy = trans_latch | trans_busy;
 
     // /*Create Baud Clock*/
     // always_ff@( posedge input_clk or negedge reset_n)begin
@@ -33,19 +33,19 @@ module UART_com #(parameter INPUT_CLK_KHZ = 100_000, BAUD_RATE =9600)(
     //     end
     // end
     
-    // initial begin trans_latch <=0; end
-    // always@(posedge trans_en or posedge trans_busy)begin
-    // 	if (trans_busy) trans_latch <=0;
-    // 	else if (trans_en) trans_latch <=1;
-    // end
+//     initial begin trans_latch <=0; end
+//     always@(posedge trans_en or posedge trans_busy)begin
+//     	if (trans_busy) trans_latch <=0;
+//     	else if (trans_en) trans_latch <=1;
+//     end
 
-    // always_ff @(posedge trans_latch or negedge reset_n) begin : proc_data_out_f
-    // 	if(!reset_n) begin
-    // 		data_out_f <= 0;
-    // 	end else begin
-    // 		data_out_f <= data_out;
-    // 	end
-    // end
+//     always_ff @(posedge trans_latch or negedge reset_n) begin : proc_data_out_f
+//     	if(!reset_n) begin
+//     		data_out_f <= 0;
+//     	end else begin
+//     		data_out_f <= data_out;
+//     	end
+//     end
 
     uart_rx #(.CLKS_PER_BIT(BAUD_COUNT))
     UART_receiver_i

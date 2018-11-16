@@ -10,20 +10,18 @@ module ACSP_top(
     //Testing LEDS
 //    output [7:0] LEDSEL, LEDOUT,
     output [15:0] LED,
-    output [4:0] indata,
+    output [5:0] indata,
     output [1:0] uart_test
     );
     
-
-    //assign LED [7:0] = uart.data_out;
-    //assign LED [15:8] = uart.data_out_f;
-    assign indata[0] = uart.trans_latch;
-    assign indata[1] = uart.trans_en;
-    assign indata[2] = uart.trans_busy;
-    assign indata[3] = uart.baud_clock;
-    assign indata[4] = uart.input_clk;
-    assign uart_test[0] = uart.Tx;
-    assign uart_test[1] = uart.Rx;
+    assign indata[0] = uart.UART_transmitter_i.r_SM_Main[0];
+    assign indata[1] = uart.UART_transmitter_i.r_SM_Main[1];
+    assign indata[2] = uart.UART_transmitter_i.r_SM_Main[2];
+    assign indata[3] = uart.UART_receiver_i.r_SM_Main[0];
+    assign indata[4] = uart.UART_receiver_i.r_SM_Main[1];
+    assign indata[5] = uart.UART_receiver_i.r_SM_Main[2];
+    assign uart_test[0] = uart.Tx;//5
+    assign uart_test[1] = uart.Rx;//6
     
     
     logic   [SAMPLE_WIDTH-1:0] fallPattern, risePattern, dataSyncToSampler, dataSamplerToFIFO, fifoToUartData;
