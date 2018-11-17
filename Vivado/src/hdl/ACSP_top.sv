@@ -8,8 +8,20 @@ module ACSP_top(
     input system_clock, ext_reset_n,
     input [SAMPLE_WIDTH-1:0] dataToSample,
     input rx,
-    output tx
+    output tx,
+    output [1:0] uart_test,
+    output [5:0] indata,
+    
+    /****deletethis****/output [7:0] tst_signal
     );
+    assign indata[0] = uart.UART_transmitter_i.r_SM_Main[0];
+    assign indata[1] = uart.UART_transmitter_i.r_SM_Main[1];
+    assign indata[2] = uart.UART_transmitter_i.r_SM_Main[2];
+    assign indata[3] = uart.UART_receiver_i.r_SM_Main[0];
+    assign indata[4] = uart.UART_receiver_i.r_SM_Main[1];
+    assign indata[5] = uart.UART_receiver_i.r_SM_Main[2];
+    assign uart_test[0] = uart.Tx;//5
+    assign uart_test[1] = uart.Rx;//6
 
     logic   [SAMPLE_WIDTH-1:0] fallPattern, risePattern, dataSyncToSampler, dataSamplerToFIFO, fifoToUartData;
     logic   [23:0]  divider;
@@ -148,5 +160,22 @@ module ACSP_top(
     //Transmit muxes
     assign tran_data = (data_meta_mux) ? fifoToUartData : transmit_meta_byte;
     assign tran_uart = (data_meta_mux) ? fifoToUartReady : tran_meta_data;
+    
+    /************ DELETE THIS, JUST TESTING USING GENRATED SIGNALS ***********/
+    
+    assign tst_signal = test_signals;
+    
+    logic [8:0] cnt_to_change;
+    logic [7:0] test_signals;
+    
+    initial begin
+        cnt_to_change = 0;
+        test_signals = 8'b10101010;
+    end
+    always@(posedge system_clock)begin
+        cnt_to_change <= cnt_to_change + 1;
+        if(cnt_to_change ==0) test_signals <= ~test_signals;
+        else test_signals <= test_signals;
+    end
 
 endmodule

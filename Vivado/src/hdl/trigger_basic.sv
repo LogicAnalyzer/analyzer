@@ -33,23 +33,25 @@ generate
         end
     endgenerate
 
-    always@(posedge load_trigs or negedge reset_n)begin
+    always@(posedge clock or negedge reset_n)begin
         if (!reset_n) begin
             trigRisingReg <= 0;
             trigFallingReg <= 0;
+        end else if (load_trigs) begin
+            trigRisingReg <= trigRising;
+            trigFallingReg <= trigFalling;
         end else begin
             trigRisingReg <= trigRising;
             trigFallingReg <= trigFalling;
         end
     end
     
-    always@(posedge arm)  begin
-        done <= 0;
-        run <=0;
-    end
-    
     always@(posedge clock) begin
-        if (&single_out[SAMPLE_WIDTH-1:0]) begin
+        if (arm)begin
+            done <= 0;
+            run <=0;
+        end
+        else if (&single_out[SAMPLE_WIDTH-1:0]) begin
             run <= 1;
             done <= 1;
         end
