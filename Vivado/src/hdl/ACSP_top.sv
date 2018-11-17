@@ -1,6 +1,8 @@
 `timescale 1ns / 1ps
 
 parameter SAMPLE_WIDTH = 8;
+parameter INPUT_CLK_KHZ = 100_000;
+parameter BAUD_RATE = 115200;
 
 module ACSP_top(
     input system_clock, ext_reset_n,
@@ -75,7 +77,8 @@ module ACSP_top(
         .delay_reg_in(command[15:0])
     );  
 
-    UART_com uart(
+    UART_com #(.INPUT_CLK_KHZ(INPUT_CLK_KHZ), .BAUD_RATE(BAUD_RATE))
+    uart(
         .input_clk(system_clock),
         .reset_n(reset_n),
         .trans_en(tran_uart),
