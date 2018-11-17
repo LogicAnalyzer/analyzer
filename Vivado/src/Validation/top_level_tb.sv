@@ -5,7 +5,7 @@ module top_level_tb();
 logic baud_clock, input_clk, Rx, Tx, ext_reset;
 logic [7:0] sample_data;
 
-localparam real BAUD_RATE = 9600;
+localparam real BAUD_RATE = 115200;
 localparam real BAUD_RATE_KHZ = BAUD_RATE / 1000;
 localparam real BAUD_HALF_PERIOD_NS = ( 10**6 )/( BAUD_RATE_KHZ * 2 ) ;
 
@@ -26,7 +26,8 @@ initial forever begin
 end
 
 /**** DUT ****/
-ACSP_top DUT(
+ACSP_top #(.SAMPLE_WIDTH(SAMPLE_WIDTH), .INPUT_CLK_KHZ(INPUT_CLK_KHZ), .BAUD_RATE(BAUD_RATE))
+DUT(
     .system_clock(input_clk), 
     .ext_reset_n(ext_reset),
     .dataToSample(sample_data),
