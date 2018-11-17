@@ -28,19 +28,23 @@ module sampler #(parameter SAMPLE_WIDTH = 8)(
     output reg validOut
     );
     
-    reg [23:0] counter;
-    
-always@ (posedge load_counter) begin
-    counter <= divider;
-end
+    reg [23:0] counter, count_to;
+
 always@(posedge clock) begin
-        if (counter == 0) begin
-            validOut <= 1'b1;
+        if(load_counter) begin
+            validOut <= 1'b0;
             counter <= divider;
+            count_to <= divider;
+        end
+        else if (counter == 0) begin
+            validOut <= 1'b1;
+            counter <= count_to;
+            count_to <= count_to;
         end else begin
             validOut <= 1'b0;
             counter <= counter - 1;
+            count_to <= count_to;
         end
        dataOut <= dataIn;
-       end
+   end
 endmodule

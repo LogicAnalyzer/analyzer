@@ -20,6 +20,11 @@ initial forever begin
     #BAUD_HALF_PERIOD_NS baud_clock <= ~baud_clock;
 end
 
+initial forever begin
+    repeat(100)@(posedge input_clk);
+    sample_data = ~sample_data;
+end
+
 /**** DUT ****/
 ACSP_top DUT(
     .system_clock(input_clk), 
@@ -40,7 +45,13 @@ initial begin
         end
         get_meta();
     join
-    $finish;
+
+    set_sample_rate(24'h0);
+    set_read_delay(16'h3E80, 16'hFF);
+    set_trigger(8'h1, 8'h0);
+    arm();
+
+    // $finish;
 end //initial begin
 
 
