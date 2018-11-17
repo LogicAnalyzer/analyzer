@@ -123,7 +123,7 @@ always_comb begin
                 control_signals = CMD_OP00;
             end
             8'H01: begin // Arm Basic Trigger
-                NS = IDLE;
+                NS = WAIT_FOR_DLYCNT;
                 current_opcode = 8'b0;
                 current_command = 32'b0;
                 control_signals = CMD_OP01;
