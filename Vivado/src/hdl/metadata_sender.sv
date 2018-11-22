@@ -70,7 +70,6 @@ end
 always_ff@(negedge clock) begin
 case(current_state)
     IDLE: begin
-        id_data_addr <= 0;
         tran_data <= 1'b0;
         meta_busy <= 1'b0;
         next_data_addr <= 1'b0;
@@ -100,7 +99,7 @@ case(current_state)
     TRANS_ID: begin
         meta_busy <= 1'b1;
         tran_data <= 1'b1;
-        next_id_data_addr = id_data_addr + 1'b1;
+        next_id_data_addr <= id_data_addr + 1'b1;
         next_state <= BUSY_TRANS_ID;
     end
     BUSY_TRANS_ID: begin
