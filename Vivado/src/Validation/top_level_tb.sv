@@ -3,12 +3,15 @@
 module top_level_tb();
 
 logic baud_clock, input_clk, Rx, Tx, ext_reset;
+logic [1:0] uarttest;
+logic [5:0] indata;
+logic [7:0] tstsignal;
 logic [7:0] sample_data;
 
 localparam real BAUD_RATE = 115200;
 localparam real BAUD_RATE_KHZ = BAUD_RATE / 1000;
 localparam real BAUD_HALF_PERIOD_NS = ( 10**6 )/( BAUD_RATE_KHZ * 2 ) ;
-
+localparam real SAMPLE_WIDTH = 8;
 localparam real INPUT_CLK_KHZ = 100_000;
 localparam real INPUT_CLK_HALF_PERIOD_NS = ( 10**6 )/( INPUT_CLK_KHZ * 2 );
 
@@ -32,7 +35,10 @@ DUT(
     .ext_reset_n(ext_reset),
     .dataToSample(sample_data),
     .rx(Rx),
-    .tx(Tx)
+    .tx(Tx),
+    .uart_test(uarttest),
+    .indata(indata),
+    .tst_signal(tstsignal)
 );
 
 /*Main Test Bench*/
@@ -47,11 +53,12 @@ initial begin
         get_meta();
     join
 
+    
     set_sample_rate(24'h0);
     set_read_delay(16'h3E80, 16'hFF);
-    set_trigger(8'h1, 8'h0);
+    set_trigger(8'b1111_0000, 8'b0000_1111);
     arm();
-
+    
     // $finish;
 end //initial begin
 

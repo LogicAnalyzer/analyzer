@@ -5,21 +5,23 @@ parameter INPUT_CLK_KHZ = 100_000;
 parameter BAUD_RATE = 115200;
 
 module ACSP_top(
-    input system_clock, ext_reset_n,
-    input [SAMPLE_WIDTH-1:0] dataToSample,
-    input rx,
-    output tx,
-    output [1:0] uart_test,
-    output [5:0] indata,
+    input logic system_clock, ext_reset_n,
+    input logic [SAMPLE_WIDTH-1:0] dataToSample,
+    input logic rx,
+    output logic tx,
+    output logic [1:0] uart_test,
+    output logic [5:0] indata,
     
-    /****deletethis****/output [7:0] tst_signal
+    /****deletethis****/output logic [7:0] tst_signal
     );
+    logic [8:0] cnt_to_change;
+    logic [7:0] test_signals;
     assign indata[0] = uart.UART_transmitter_i.r_SM_Main[0];
     assign indata[1] = uart.UART_transmitter_i.r_SM_Main[1];
     assign indata[2] = uart.UART_transmitter_i.r_SM_Main[2];
-    assign indata[3] = uart.UART_receiver_i.r_SM_Main[0];
-    assign indata[4] = uart.UART_receiver_i.r_SM_Main[1];
-    assign indata[5] = uart.UART_receiver_i.r_SM_Main[2];
+//    assign indata[3] = uart.UART_receiver_i.r_SM_Main[0];
+//    assign indata[4] = uart.UART_receiver_i.r_SM_Main[1];
+//    assign indata[5] = uart.UART_receiver_i.r_SM_Main[2];
     assign uart_test[0] = uart.Tx;//5
     assign uart_test[1] = uart.Rx;//6
 
@@ -163,10 +165,9 @@ module ACSP_top(
     
     /************ DELETE THIS, JUST TESTING USING GENRATED SIGNALS ***********/
     
-    assign tst_signal = test_signals;
     
-    logic [8:0] cnt_to_change;
-    logic [7:0] test_signals;
+    assign tst_signal = test_signals;
+
     
     initial begin
         cnt_to_change = 0;

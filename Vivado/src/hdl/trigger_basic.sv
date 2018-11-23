@@ -15,7 +15,6 @@ module trigger_basic #(parameter SAMPLE_WIDTH = 8) (
 reg [SAMPLE_WIDTH-1:0] trigRisingReg;
 reg [SAMPLE_WIDTH-1:0] trigFallingReg;
 reg done;
-wire x;
 wire [SAMPLE_WIDTH-1:0] single_out;
 genvar i;
 generate
@@ -32,40 +31,39 @@ generate
             );
         end
     endgenerate
-
-    always@(posedge clock or negedge reset_n)begin
+    
+    always@(posedge clock or negedge reset_n) begin
         if (!reset_n) begin
             trigRisingReg <= 0;
             trigFallingReg <= 0;
-        end else if (load_trigs) begin
+            run <= 0;
+            done <= 1;
+        end 
+        else if (load_trigs) begin
             trigRisingReg <= trigRising;
             trigFallingReg <= trigFalling;
-        end else begin
-            trigRisingReg <= trigRising;
-            trigFallingReg <= trigFalling;
+            run <= 0;
+            done <= 1;
         end
-    end
-    
-    always@(posedge clock) begin
-        if (arm)begin
+        else if (arm) begin
+            trigRisingReg <= trigRisingReg;
+            trigFallingReg <= trigFallingReg;
             done <= 0;
             run <=0;
         end
-        else if (&single_out[SAMPLE_WIDTH-1:0]) begin
+        else if (&single_out[SAMPLE_WIDTH-1:0] & !done) begin
+            trigRisingReg <= trigRisingReg;
+            trigFallingReg <= trigFallingReg;
             run <= 1;
             done <= 1;
         end
-        else if (done) begin
+        else begin
+            trigRisingReg <= trigRisingReg;
+            trigFallingReg <= trigFallingReg;
             run <= 0;
             done <= done;
         end
-        else begin
-            run <= run;
-            done <= done;
-        end
     end
-    
-    
 endmodule
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -95,8 +93,7 @@ module single_trigger(
     if(arm) 
         begin
             if(trig_sel_rise | trig_sel_fall)
-                q <= 0;
-                
+                q <= 0;                
             else
                 q <= 1;
         end
