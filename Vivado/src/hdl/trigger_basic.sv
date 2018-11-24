@@ -1,21 +1,21 @@
 `timescale 1ns / 1ps
 
 module trigger_basic #(parameter SAMPLE_WIDTH = 8) (
-    input clock,
-    input reset_n,    
-    input valid,
-    input arm,
-    input load_trigs,                      
-    input [SAMPLE_WIDTH-1:0] dataIn,
-    input [SAMPLE_WIDTH-1:0] trigRising,
-    input [SAMPLE_WIDTH-1:0] trigFalling,
-    output reg run    
+    input logic clock,
+    input logic reset_n,    
+    input logic valid,
+    input logic arm,
+    input logic load_trigs,                      
+    input logic [SAMPLE_WIDTH-1:0] dataIn,
+    input logic [SAMPLE_WIDTH-1:0] trigRising,
+    input logic [SAMPLE_WIDTH-1:0] trigFalling,
+    output logic run    
     );
 
-reg [SAMPLE_WIDTH-1:0] trigRisingReg;
-reg [SAMPLE_WIDTH-1:0] trigFallingReg;
-reg done;
-wire [SAMPLE_WIDTH-1:0] single_out;
+logic [SAMPLE_WIDTH-1:0] trigRisingReg;
+logic [SAMPLE_WIDTH-1:0] trigFallingReg;
+logic done;
+logic [SAMPLE_WIDTH-1:0] single_out;
 genvar i;
 generate
     for(i = 0; i < SAMPLE_WIDTH; i = i + 1)
@@ -32,7 +32,7 @@ generate
         end
     endgenerate
     
-    always@(posedge clock or negedge reset_n) begin
+    always_ff@(posedge clock) begin
         if (!reset_n) begin
             trigRisingReg <= 0;
             trigFallingReg <= 0;
@@ -51,7 +51,7 @@ generate
             done <= 0;
             run <=0;
         end
-        else if (&single_out[SAMPLE_WIDTH-1:0] & !done) begin
+        else if ((&single_out[SAMPLE_WIDTH-1:0]) & !done) begin
             trigRisingReg <= trigRisingReg;
             trigFallingReg <= trigFallingReg;
             run <= 1;
@@ -72,23 +72,24 @@ endmodule
 /////////////////////////////////////////////////////////////////////////////////
 
 module single_trigger(
-    input clock,
-    input valid,
-    input trig_sel_rise,
-    input trig_sel_fall,
-    input sample,
-    input arm,
-    output reg q    
+    input logic clock,
+    input logic valid,
+    input logic trig_sel_rise,
+    input logic trig_sel_fall,
+    input logic sample,
+    input logic arm,
+    output logic q    
 );
 
-    reg q_sample;
+    logic q_sample;
 
-    always@(posedge clock)
+    always_ff@(posedge clock)
     begin
     if (valid) q_sample <= sample;
+    else q_sample <= q_sample;
     end
         
-    always@(posedge clock or posedge arm) 
+    always_ff@(posedge clock) 
     begin
     if(arm) 
         begin
