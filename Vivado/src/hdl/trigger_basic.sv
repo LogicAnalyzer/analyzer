@@ -36,30 +36,34 @@ generate
         if (!reset_n) begin
             trigRisingReg <= 0;
             trigFallingReg <= 0;
-            run <= 0;
-            done <= 1;
         end 
         else if (load_trigs) begin
             trigRisingReg <= trigRising;
             trigFallingReg <= trigFalling;
-            run <= 0;
-            done <= 1;
-        end
-        else if (arm) begin
+        end else begin
             trigRisingReg <= trigRisingReg;
             trigFallingReg <= trigFallingReg;
+        end
+    end
+    
+    always_ff@(posedge clock) begin
+        if (!reset_n) begin
+            run <= 0;
+            done <= 1;
+        end 
+        else if (arm) begin
             done <= 0;
             run <=0;
         end
         else if ((&single_out[SAMPLE_WIDTH-1:0]) & !done) begin
-            trigRisingReg <= trigRisingReg;
-            trigFallingReg <= trigFallingReg;
+            run <= 1;
+            done <= 1;
+        end
+        else if (run & !valid) begin
             run <= 1;
             done <= 1;
         end
         else begin
-            trigRisingReg <= trigRisingReg;
-            trigFallingReg <= trigFallingReg;
             run <= 0;
             done <= done;
         end
