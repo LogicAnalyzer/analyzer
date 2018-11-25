@@ -44,19 +44,24 @@ DUT(
 /*Main Test Bench*/
 initial begin
     initialize();
+    ext_reset = 1'b0;
+    #5;
+    ext_reset = 1'b1;
     send_reset();
     fork
+        get_meta();
         begin
             query_id();
             query_metadata();
         end
-        get_meta();
+
     join
 
+    send_reset();send_reset();send_reset();send_reset();
+    set_trigger(8'b0000_0001, 8'b0000_0000);
+    set_sample_rate(24'h1f3);
+    set_read_delay(16'h18, 16'h18);
     
-    set_sample_rate(24'h0);
-    set_read_delay(16'h3E80, 16'hFF);
-    set_trigger(8'b1111_0000, 8'b0000_1111);
     arm();
     
     // $finish;
@@ -107,21 +112,14 @@ endtask : receive_data
 
 task arm();
     send_data(8'H01);
-    send_data(8'H00);
-    send_data(8'H00);
-    send_data(8'H00);
-    send_data(8'H00);
 endtask: arm
 
 task send_reset();
     send_data(8'H00);
-    send_data(8'H00);
-    send_data(8'H00);
-    send_data(8'H00);
-    send_data(8'H00);
 endtask : send_reset
 
 task set_sample_rate(input [23:0] sample_rate);
+    $display("setting sample rate to: %d",sample_rate);
     send_data(8'H80);
     send_data(8'H00);
     send_data(sample_rate[23:16]);
@@ -147,19 +145,10 @@ endtask : set_trigger
 
 task query_metadata();
     send_data(8'H02);
-    send_data(8'H00);
-    send_data(8'H00);
-    send_data(8'H00);
-    send_data(8'H00);
-
 endtask : query_metadata
 
 task query_id();
     send_data(8'H04);
-    send_data(8'H00);
-    send_data(8'H00);
-    send_data(8'H00);
-    send_data(8'H00);
 endtask : query_id
 
 task receive_nullend_string();

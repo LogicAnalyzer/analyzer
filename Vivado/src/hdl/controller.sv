@@ -42,9 +42,9 @@ typedef enum {IDLE, META_WAIT, CMD_RECIEVED, RESETS, WAIT_FOR_DLYCNT,
 controller_state CS, NS;
 
 //!!!VERY IMPORTANT If you add signals to this list you MUST expand "control_signals" vector size and LOCALPARAM
-assign {load_counter,data_meta_mux,begin_meta_transmit,
-        send_id,en,rnw,clear,hold_window,edge_capture,
-        arm,load_trigs,en_cnt,clr_cnt,wr_en,reg_sel,reset_n} = control_signals;
+assign {load_counter, data_meta_mux, begin_meta_transmit,
+        send_id, en, rnw, clear, hold_window, edge_capture,
+        arm, load_trigs, en_cnt, clr_cnt, wr_en, reg_sel, reset_n} = control_signals;
 
     localparam IDLE_    = 16'b0000_0000_0000_0001;
     //State1 - CMD_RECIEVED
@@ -182,7 +182,13 @@ always_comb begin
                 current_command = 32'b0;
                 control_signals = CMD_OPC1;
         	end
-            default: NS = IDLE;
+            default: 
+                begin
+                    NS = IDLE;
+                    current_opcode = 8'b0;
+                    current_command = 32'b0;
+                    control_signals = IDLE_;
+                end
             endcase
         end
         //META_WAIT: Wait for metadata module to finish transmission.
@@ -210,20 +216,28 @@ always_comb begin
         WAIT_FOR_DLYCNT: begin
             if (!validOut) begin
                 NS = WAIT_FOR_DLYCNT;
+                current_opcode = 8'b0;
+                current_command = 32'b0;
                 control_signals = DLYCNT1;
             end
             else begin 
                 if (run) begin
                     NS = SAMPLING;
+                    current_opcode = 8'b0;
+                    current_command = 32'b0;
                     control_signals = DLYCNT4;
                 end
                 else begin
                      if (delay_match) begin
                         NS = WAIT_FOR_TRIGGER;
+                        current_opcode = 8'b0;
+                        current_command = 32'b0;
                         control_signals = DLYCNT3;
                     end
                     else begin
                         NS = WAIT_FOR_DLYCNT;
+                        current_opcode = 8'b0;
+                        current_command = 32'b0;
                         control_signals = DLYCNT2;
                     end
                 end
@@ -233,15 +247,21 @@ always_comb begin
         WAIT_FOR_TRIGGER: begin
             if(!validOut) begin
                 NS = WAIT_FOR_TRIGGER;
+                current_opcode = 8'b0;
+                current_command = 32'b0;
                 control_signals = WTTRIG1;
             end
             else begin
                 if(run) begin
                     NS = SAMPLING;
+                    current_opcode = 8'b0;
+                    current_command = 32'b0;
                     control_signals = WTTRIG2;
                 end
                 else begin
                     NS = WAIT_FOR_TRIGGER;
+                    current_opcode = 8'b0;
+                    current_command = 32'b0;
                     control_signals = WTTRIG2;
                 end
             end
@@ -250,15 +270,21 @@ always_comb begin
         SAMPLING: begin
             if (!validOut) begin
                 NS = SAMPLING;
+                current_opcode = 8'b0;
+                current_command = 32'b0;
                 control_signals = SAMPLE1;
             end
             else begin
                 if(read_match) begin
                     NS = TRANSMITTING;
+                    current_opcode = 8'b0;
+                    current_command = 32'b0;
                     control_signals = SAMPLE3;
                 end
                 else begin
                     NS = SAMPLING;
+                    current_opcode = 8'b0;
+                    current_command = 32'b0;
                     control_signals = SAMPLE2;
                 end
             end
@@ -267,15 +293,21 @@ always_comb begin
         TRANSMITTING: begin
             if (transmit_busy) begin
                 NS = TRANSMITTING;
+                current_opcode = 8'b0;
+                current_command = 32'b0;
                 control_signals = TRANS1;
             end
             else begin
                 if (empty) begin
                     NS = IDLE;
+                    current_opcode = 8'b0;
+                    current_command = 32'b0;
                     control_signals = TRANS2;
                 end
                 else begin
                     NS = TRANSMIT_WAIT;
+                    current_opcode = 8'b0;
+                    current_command = 32'b0;
                     control_signals = TRANS3;
                 end
             end
@@ -283,6 +315,8 @@ always_comb begin
         //TRANSMIT_WAIT - Wait state to allow transmission flag to enable.
         TRANSMIT_WAIT: begin
             NS = TRANSMITTING;
+            current_opcode = 8'b0;
+            current_command = 32'b0;
             control_signals = TRAIDLE;
         end
         //

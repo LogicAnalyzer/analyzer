@@ -12,10 +12,12 @@ module ACSP_top(
     output logic [1:0] uart_test,
     output logic [5:0] indata,
     
-    /****deletethis****/output logic [7:0] tst_signal
+    /****deletethis****/
+    output logic [7:0] tst_signal,
+    output logic [7:0] LEDSEL, 
+    output logic [7:0] LEDOUT
     );
-    logic [8:0] cnt_to_change;
-    logic [7:0] test_signals;
+
     assign indata[0] = uart.UART_transmitter_i.r_SM_Main[0];
     assign indata[1] = uart.UART_transmitter_i.r_SM_Main[1];
     assign indata[2] = uart.UART_transmitter_i.r_SM_Main[2];
@@ -106,7 +108,7 @@ module ACSP_top(
 
     command_decoder cmd_decode(
        .clock(system_clock),
-       .reset_n(reset_n),
+       .reset_n(ext_reset_n),
        .byte_in(recv_data),
        .byte_in_ready(data_rdy),
        .cmd_recieved(opcode_rdy),
@@ -164,7 +166,10 @@ module ACSP_top(
     assign tran_uart = (data_meta_mux) ? fifoToUartReady : tran_meta_data;
     
     /************ DELETE THIS, JUST TESTING USING GENRATED SIGNALS ***********/
-    
+    logic led_clk;
+    logic [8:0] cnt_to_change;
+    logic [7:0] test_signals;
+    logic [7:0] digit0, digit1, digit2, digit3, digit4, digit5, digit6, digit7;
     
     assign tst_signal = test_signals;
 
@@ -178,5 +183,22 @@ module ACSP_top(
         if(cnt_to_change ==0) test_signals <= ~test_signals;
         else test_signals <= test_signals;
     end
+    
+    bcd_to_7seg bcd7    (4'h0, digit7);
+    bcd_to_7seg bcd6    (4'h0, digit6);
+    bcd_to_7seg bcd5    (4'h0, digit5);
+    bcd_to_7seg bcd4    (4'h0, digit4);
+    bcd_to_7seg bcd3    (4'h0, digit3);
+    bcd_to_7seg bcd2    (4'h0, digit2);
+    bcd_to_7seg bcd1    (4'h0, digit1);
+    bcd_to_7seg bcd0    (control_unit.CS, digit0);
+    led_mux led_mux (led_clk, ext_reset_n, digit7, digit6, digit5, digit4, digit3, digit2, digit1, digit0, LEDSEL, LEDOUT);
+    
+    clk_gen ledclock(
+        .clk100MHz(system_clock),
+        .reset_n(ext_reset_n),
+        .clk_sec(),
+        .clk_5KHz(led_clk)
+    );
 
 endmodule
