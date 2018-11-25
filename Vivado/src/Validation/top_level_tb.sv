@@ -56,7 +56,116 @@ initial begin
         end
 
     join
+    
+    fork
+        get_meta();
+        begin
+            query_id();
+            query_metadata();
+        end
 
+    join
+    
+    fork
+        get_meta();
+        begin
+            query_id();
+            query_metadata();
+        end
+
+    join
+    
+    fork
+        get_meta();
+        begin
+            query_id();
+            query_metadata();
+        end
+
+    join
+    
+    fork
+        get_meta();
+        begin
+            query_id();
+            query_metadata();
+        end
+
+    join
+    
+    fork
+        get_meta();
+        begin
+            query_id();
+            query_metadata();
+        end
+
+    join
+    
+    fork
+        get_meta();
+        begin
+            query_id();
+            query_metadata();
+        end
+
+    join
+    
+    fork
+        get_meta();
+        begin
+            query_id();
+            query_metadata();
+        end
+
+    join
+    
+    fork
+        get_meta();
+        begin
+            query_id();
+            query_metadata();
+        end
+
+    join
+    
+    fork
+        get_meta();
+        begin
+            query_id();
+            query_metadata();
+        end
+
+    join
+
+    send_reset();send_reset();send_reset();send_reset();
+    set_trigger(8'b0000_0001, 8'b0000_0000);
+    set_sample_rate(24'h1f3);
+    set_read_delay(16'h18, 16'h18);
+    
+    arm();
+    
+    send_reset();
+    set_trigger(8'b0000_0001, 8'b0000_0000);
+    set_sample_rate(24'h1f3);
+    set_read_delay(16'h18, 16'h18);
+    
+    arm();
+    
+    send_reset();send_reset();
+    set_trigger(8'b0000_0001, 8'b0000_0000);
+    set_sample_rate(24'h1f3);
+    set_read_delay(16'h18, 16'h18);
+    
+    arm();
+    
+    send_reset();send_reset();send_reset();send_reset();
+    set_trigger(8'b0000_0001, 8'b0000_0000);
+    set_sample_rate(24'h1f3);
+    set_read_delay(16'h18, 16'h18);
+    
+    arm();
+    
     send_reset();send_reset();send_reset();send_reset();
     set_trigger(8'b0000_0001, 8'b0000_0000);
     set_sample_rate(24'h1f3);

@@ -18,12 +18,6 @@ module ACSP_top(
     output logic [7:0] LEDOUT
     );
 
-    assign indata[0] = uart.UART_transmitter_i.r_SM_Main[0];
-    assign indata[1] = uart.UART_transmitter_i.r_SM_Main[1];
-    assign indata[2] = uart.UART_transmitter_i.r_SM_Main[2];
-//    assign indata[3] = uart.UART_receiver_i.r_SM_Main[0];
-//    assign indata[4] = uart.UART_receiver_i.r_SM_Main[1];
-//    assign indata[5] = uart.UART_receiver_i.r_SM_Main[2];
     assign uart_test[0] = uart.Tx;//5
     assign uart_test[1] = uart.Rx;//6
 
@@ -169,6 +163,7 @@ module ACSP_top(
     logic led_clk;
     logic [8:0] cnt_to_change;
     logic [7:0] test_signals;
+    logic [7:0] opcode_shifter[0:2];
     logic [7:0] digit0, digit1, digit2, digit3, digit4, digit5, digit6, digit7;
     
     assign tst_signal = test_signals;
@@ -178,19 +173,38 @@ module ACSP_top(
         cnt_to_change = 0;
         test_signals = 8'b10101010;
     end
+    
+    always@(posedge opcode_rdy or negedge ext_reset_n) begin
+        if(!ext_reset_n)begin
+        
+        end else begin
+            opcode_shifter[2] <= opcode_shifter[1];
+            opcode_shifter[1] <= opcode_shifter[0];
+            opcode_shifter[0] <= opcode;
+
+        end
+    end
     always@(posedge system_clock)begin
         cnt_to_change <= cnt_to_change + 1;
         if(cnt_to_change ==0) test_signals <= ~test_signals;
         else test_signals <= test_signals;
     end
     
-    bcd_to_7seg bcd7    (4'h0, digit7);
-    bcd_to_7seg bcd6    (4'h0, digit6);
-    bcd_to_7seg bcd5    (4'h0, digit5);
-    bcd_to_7seg bcd4    (4'h0, digit4);
-    bcd_to_7seg bcd3    (4'h0, digit3);
-    bcd_to_7seg bcd2    (4'h0, digit2);
-    bcd_to_7seg bcd1    (4'h0, digit1);
+    bcd_to_7seg bcd7    (opcode_shifter[2][7:4], digit7);
+    bcd_to_7seg bcd6    (opcode_shifter[2][3:0], digit6[6:0]);
+    assign digit6[7] = 1'b0; // decimal point
+    
+    bcd_to_7seg bcd5    (opcode_shifter[1][7:4], digit5);
+    bcd_to_7seg bcd4    (opcode_shifter[1][3:0], digit4[6:0]);
+    assign digit4[7] = 1'b0; // decimal point
+    
+    bcd_to_7seg bcd3    (opcode_shifter[0][7:4], digit3);
+    bcd_to_7seg bcd2    (opcode_shifter[0][3:0], digit2[6:0]);
+    assign digit2[7] = 1'b0; // decimal point
+    
+//    bcd_to_7seg bcd1    (4'hx, digit1);
+    assign digit1 = 7'b1111111; // empty buffer digit
+    
     bcd_to_7seg bcd0    (control_unit.CS, digit0);
     led_mux led_mux (led_clk, ext_reset_n, digit7, digit6, digit5, digit4, digit3, digit2, digit1, digit0, LEDSEL, LEDOUT);
     
