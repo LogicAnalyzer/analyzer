@@ -176,7 +176,7 @@ module ACSP_top(
     
     always@(posedge opcode_rdy or negedge ext_reset_n) begin
         if(!ext_reset_n)begin
-        
+            for(int i=0; i<3; i=i+1)opcode_shifter[i]<=0;
         end else begin
             opcode_shifter[2] <= opcode_shifter[1];
             opcode_shifter[1] <= opcode_shifter[0];
