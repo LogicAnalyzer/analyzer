@@ -90,7 +90,8 @@ module ACSP_top(
         .read_match (read_match),
         .delay_match(delay_match),
         .read_reg_in(command[31:16]),
-        .delay_reg_in(command[15:0])
+        .delay_reg_in(command[15:0]),
+        .read_reg_out(), .delay_reg_out()
     );  
 
     UART_com #(.INPUT_CLK_KHZ(INPUT_CLK_KHZ), .BAUD_RATE(BAUD_RATE))
