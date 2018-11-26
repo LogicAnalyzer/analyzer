@@ -122,7 +122,6 @@ module ACSP_top(
         .ext_reset_n(ext_reset_n),
     //Status Signals
         .opcode(opcode), 
-        .command(command), 
         .cmd_recv_rx(opcode_rdy), 
         .run(run), 
         .transmit_busy(tx_busy), 
