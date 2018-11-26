@@ -58,9 +58,10 @@ initial begin
     join
 
     send_reset();
-    set_trigger(8'b0000_0000, 8'b0000_0000);
-    set_sample_rate(24'h98967f);
-    set_read_delay(16'h03, 16'h03);
+    set_trigger(8'b0000_0101, 8'b0000_0010);//c1
+    set_trigger(8'b0000_0101, 8'b0000_0010);//c1
+    set_sample_rate(24'h0);
+    set_read_delay(16'h4E1F, 16'h4A37);
     
     send_data(8'H82);
     send_data(8'H38);
@@ -108,7 +109,7 @@ function void initialize ();
     baud_clock =0;
     ext_reset = 1;
     Rx = 1;
-    sample_data = 8'hFF;
+    sample_data = 8'b10101010;
 endfunction : initialize
     
 task send_data(input [7:0] data);

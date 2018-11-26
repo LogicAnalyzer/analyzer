@@ -209,7 +209,7 @@ module ACSP_top(
     assign digit2[7] = 1'b0; // decimal point
     
 //    bcd_to_7seg bcd1    (4'hx, digit1);
-    assign digit1 = 7'b1111111; // empty buffer digit
+    assign digit1 = 8'b11111111; // empty buffer digit
     
     bcd_to_7seg bcd0    (control_unit.CS, digit0);
     led_mux led_mux (led_clk, ext_reset_n, digit7, digit6, digit5, digit4, digit3, digit2, digit1, digit0, LEDSEL, LEDOUT);

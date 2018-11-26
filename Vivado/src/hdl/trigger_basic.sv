@@ -14,7 +14,7 @@ module trigger_basic #(parameter SAMPLE_WIDTH = 8) (
 
 logic [SAMPLE_WIDTH-1:0] trigRisingReg;
 logic [SAMPLE_WIDTH-1:0] trigFallingReg;
-logic done;
+logic done, valid_q;
 logic [SAMPLE_WIDTH-1:0] single_out;
 genvar i;
 generate
@@ -31,6 +31,13 @@ generate
             );
         end
     endgenerate
+    
+    always_ff@(posedge clock) begin
+        if (!reset_n)
+            valid_q <= 0;
+        else
+            valid_q <= valid;
+    end
     
     always_ff@(posedge clock) begin
         if (!reset_n) begin
@@ -59,7 +66,7 @@ generate
             run <= 1;
             done <= 1;
         end
-        else if (run & !valid) begin
+        else if (run & ((!valid & !valid_q) | (valid & !valid_q))) begin
             run <= 1;
             done <= 1;
         end
