@@ -54,7 +54,7 @@ typedef  enum {IDLE, TRANS, BUSY_TRANS, TRANS_ID, BUSY_TRANS_ID} uart_state;
 uart_state current_state, next_state;
 
    
-always_ff @(posedge clock or negedge reset_n) begin
+always_ff @(posedge clock) begin
   if (!reset_n) begin  
       current_state <= IDLE;
       data_addr <= 1'b0;
