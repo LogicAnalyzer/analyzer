@@ -18,9 +18,6 @@ module ACSP_top(
     output logic [7:0] LEDOUT
     );
 
-    assign uart_test[0] = uart.Tx;//5
-    assign uart_test[1] = uart.Rx;//6
-
     logic   [SAMPLE_WIDTH-1:0] fallPattern, risePattern, dataSyncToSampler, dataSamplerToFIFO, fifoToUartData;
     logic   [23:0]  divider;
     logic   [7:0]   opcode, recv_data, transmit_meta_byte, tran_data;
@@ -32,6 +29,15 @@ module ACSP_top(
                     load_trigs, load_counter;
     logic           en, rnw, clear, hold_window, full, empty, fifoToUartReady,
                     en_cnt, clr_cnt, read_match, delay_match, wr_en, reg_sel;
+                    
+        assign indata[0]=en;//1
+        assign indata[1]=full;//2
+        assign indata[2]=empty;//3
+        assign indata[3]=rnw;//4
+        assign indata[4]=tran_uart;//7
+        assign indata[5]=tx_busy;//8
+        assign uart_test[0] = uart.Tx;//9
+        assign uart_test[1] = uart.Rx;//10
 
     input_sync #(SAMPLE_WIDTH) sync_module(
         .clock(system_clock),
