@@ -1,28 +1,24 @@
 `timescale 1ns / 1ps
 
-module sample_counter #(parameter CNT_BITS=8)(
-	input reset_n, clk, en_cnt, clr_cnt, wr_en, reg_sel,
-	input [CNT_BITS-1:0] reg_in,
+module sample_counter #(parameter CNT_BITS=16)(
+	input reset_n, clk, en_cnt, clr_cnt, wr_en,
+	input [CNT_BITS-1:0] read_reg_in, delay_reg_in,
 	output read_match, delay_match,
-	output [CNT_BITS-1:0] reg_out
+	output [CNT_BITS-1:0] read_reg_out, delay_reg_out
 	);
 	logic [CNT_BITS-1:0] read_reg, delay_reg, count;
 
 	/* Register Logic*/
-	assign reg_out = reg_sel ? read_reg : delay_reg;
+	assign read_reg_out = read_reg;
+	assign delay_reg_out = delay_reg;
 	always@(posedge clk)begin
 		if(!reset_n)begin
 			read_reg <= 0;
 			delay_reg <= 0;
 		end else begin
 			if(wr_en)begin
-				if(reg_sel)begin
-					read_reg <= reg_in;
-					delay_reg <= delay_reg;
-				end else begin
-					read_reg <= read_reg;
-					delay_reg <= reg_in;
-				end
+				read_reg <= read_reg_in;
+				delay_reg <= delay_reg_in;
 			end else begin
 				read_reg <= read_reg;
 				delay_reg <= delay_reg;

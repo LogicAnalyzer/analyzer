@@ -22,7 +22,10 @@ logic [7:0] meta_rom[63:0]; //ROM be here
 logic [7:0] id_rom[4:0]; // ID ROM here
 logic send_id_reg;
 logic ID_ROM_LEN = 2'b11;
+logic id_clr, id_cnt, data_clr, data_cnt;
+
 assign transmit_byte = (send_id_reg) ? id_rom[id_data_addr] : meta_rom[data_addr];
+
 initial
 begin : meta
    integer i;
@@ -52,66 +55,105 @@ end
 //FSM for Meta Transmission   
 typedef  enum {IDLE, TRANS, BUSY_TRANS, TRANS_ID, BUSY_TRANS_ID} uart_state;
 uart_state current_state, next_state;
-
    
-always_ff @(posedge clock or negedge reset_n) begin
+always_ff @(posedge clock) begin
   if (!reset_n) begin  
       current_state <= IDLE;
-      data_addr <= 1'b0;
-      id_data_addr <= 1'b0;
   end else begin
       current_state <= next_state;
-      data_addr <= next_data_addr;
-      id_data_addr <= next_id_data_addr;
   end
 end
 
-//always_comb begin
-always_ff@(negedge clock) begin
+always_ff @(posedge clock)
+begin
+  if(!reset_n)begin
+    id_data_addr <= 0;
+  end else if(id_clr) begin
+    id_data_addr <= 0;
+  end else if (id_cnt) begin
+    id_data_addr <= id_data_addr +1;
+  end else
+    id_data_addr <= id_data_addr;
+end
+
+always_ff @(posedge clock)
+begin
+  if(!reset_n)begin
+    data_addr <= 0;
+  end else if(data_clr) begin
+    data_addr <= 0;
+  end else if (data_cnt) begin
+    data_addr <= data_addr +1;
+  end else
+    data_addr <= data_addr;
+end
+
+always_comb begin
 case(current_state)
     IDLE: begin
         tran_data <= 1'b0;
         meta_busy <= 1'b0;
-        next_data_addr <= 1'b0;
-        next_id_data_addr <= 1'b0;         
-        send_id_reg = send_id;  
-        if(send_id) begin
-            next_state <= (!tx_busy && begin_meta_transmit) ? TRANS_ID : IDLE;  
+        send_id_reg <= 1'b0;
+        id_clr = 1'b1;
+        id_cnt = 1'b0;
+        data_clr = 1'b1;
+        data_cnt = 1'b0;
+        if(tx_busy | !begin_meta_transmit)begin
+            next_state = IDLE;
         end else begin
-            next_state <= (!tx_busy && begin_meta_transmit) ? TRANS : IDLE;    
-        end  
+            next_state = send_id ? TRANS_ID : TRANS;
+        end
     end
     TRANS: begin
-        meta_busy <= 1'b1;
-        tran_data <= 1'b1;
-        next_data_addr <= data_addr + 1'b1;
-        next_state <= BUSY_TRANS;
+        tran_data = 1'b1;
+        meta_busy = 1'b1;
+        send_id_reg = 1'b0;
+        id_clr = 1'b1;
+        id_cnt = 1'b0;
+        data_clr = 1'b0;
+        data_cnt = 1'b1;
+        next_state = BUSY_TRANS;
     end
     BUSY_TRANS: begin
-        meta_busy <= 1'b1;
-        tran_data <= 1'b0;
+        tran_data = 1'b0;
+        meta_busy = 1'b1;
+        send_id_reg = 1'b0;
+        id_clr = 1'b1;
+        id_cnt = 1'b0;
+        data_clr = 1'b0;
+        data_cnt = 1'b0;
         if (!tx_busy) begin
-            next_state <= (data_addr == METADATA_LEN) ? IDLE: TRANS;
+            next_state = (data_addr == METADATA_LEN) ? IDLE: TRANS;
         end else begin
-            next_state <= BUSY_TRANS;
+            next_state = BUSY_TRANS;
         end
     end
     TRANS_ID: begin
-        meta_busy <= 1'b1;
-        tran_data <= 1'b1;
-        next_id_data_addr = id_data_addr + 1'b1;
-        next_state <= BUSY_TRANS_ID;
+        tran_data = 1'b1;
+        meta_busy = 1'b1;
+        send_id_reg = 1'b1;
+        id_clr = 1'b0;
+        id_cnt = 1'b1;
+        data_clr = 1'b1;
+        data_cnt = 1'b0;
+        next_state = BUSY_TRANS_ID;
     end
     BUSY_TRANS_ID: begin
-        meta_busy <= 1'b1;
-        tran_data <= 1'b0;
+        tran_data = 1'b0;
+        meta_busy = 1'b1;
+        send_id_reg = 1'b1;
+        id_clr = 1'b0;
+        id_cnt = 1'b0;
+        data_clr = 1'b1;
+        data_cnt = 1'b0;
         if (!tx_busy) begin
-            next_state <= (id_data_addr == 4) ? IDLE: TRANS_ID;
+            next_state = (id_data_addr >= 4) ? IDLE: TRANS_ID;
         end else begin
-            next_state <= BUSY_TRANS_ID;
+            next_state = BUSY_TRANS_ID;
         end
     end
-    default: next_state <= IDLE;    
+    default: next_state = IDLE;    
     endcase 
-end    
+end
+
 endmodule

@@ -23,7 +23,7 @@
 module UART_transmitter_tb(
 
     );
-	logic baud_clock, clock_100_Mhz, reset, Rx, Tx, data_rdy, trans_en;
+	logic baud_clock, clock_100_Mhz, reset, Rx, Tx, data_rdy, trans_en, Tx_done, Tx_busy;
 	logic [7:0] data_in, data_out;
 	integer current_data, error_count, success_count;
 
@@ -34,11 +34,31 @@ module UART_transmitter_tb(
 		#52083.335ns baud_clock <= ~baud_clock;
 	end
     
-    UART_receiver xReceiver( .input_clk(clock_100_Mhz), .reset(reset),  .data_received(data_in), .data_rdy(data_rdy), .Rx(Rx)
-        );
+    localparam integer BAUD_RATE=9600;
+    localparam integer INPUT_CLK_KHZ=100_000;
 
-    UART_transmitter DUT( .input_clk(clock_100_Mhz), .reset(reset), .trans_en(trans_en), .data_out(data_out), .Tx(Tx)
-        );
+    localparam real BAUD_RATE_KHZ = BAUD_RATE / 1000.0;
+    localparam integer BAUD_COUNT = (INPUT_CLK_KHZ / (BAUD_RATE_KHZ * 2) - 1);
+    
+    uart_rx #(.CLKS_PER_BIT(BAUD_COUNT))
+    UART_receiver_i
+    (
+       .i_Clock(clock_100_Mhz),
+       .i_Rx_Serial( Rx),
+       .o_Rx_DV(data_rdy),
+       .o_Rx_Byte(data_in)
+    );
+
+    uart_tx #(.CLKS_PER_BIT(BAUD_COUNT))
+    DUT
+    (
+        .i_Clock(clock_100_Mhz),
+        .i_Tx_DV(trans_en),
+        .i_Tx_Byte(data_out), 
+        .o_Tx_Active(Tx_busy),
+        .o_Tx_Serial(Tx),
+        .o_Tx_Done(Tx_done)
+    );
 
     assign Rx = Tx;
     initial begin

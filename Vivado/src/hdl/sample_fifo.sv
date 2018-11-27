@@ -43,7 +43,7 @@ module sample_fifo(
 		wr_pointer = 16'b0;
 		rd_pointer = 16'b0;
 	end
-	always@(posedge clk or negedge reset_n) begin 
+	always@(posedge clk) begin 
 		if (!reset_n | clear)begin 
 			wr_pointer <= 0;
 			rd_pointer <= 0;
@@ -61,7 +61,7 @@ module sample_fifo(
 	end
 
 	/* Valid Data Logic */
-	always_ff @(posedge clk or negedge reset_n) begin : proc_data_valid
+	always_ff @(posedge clk) begin : proc_data_valid
 		if(!reset_n) begin
 			data_valid <= 0;
 		end else begin
