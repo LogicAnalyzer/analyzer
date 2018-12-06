@@ -13,7 +13,7 @@ You will need to have Xilinx Vivado Installed.
 
 OR
 
-1. Download the release bitstream at [this](https://github.com/LogicAnalyzer/analyzer/bitstream) and install via viavado or through SD card.
+1. Download the release bitstream and install via Vivado or through a SD card.
 
 
 # How to build sigrok #
